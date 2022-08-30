@@ -2,10 +2,15 @@ import React from "react";
 import styled from "styled-components";
 import { FiShoppingCart } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { ReduxState } from "../../reducer";
 
 export interface NavBarProps {}
 
-export default function NavBar({}: NavBarProps) {
+export default function NavBar({ }: NavBarProps) {
+  const cartItems = useSelector((state: ReduxState) => state.cartItems);
+  console.log(cartItems)
   return (
     <NavBarContainer>
       <LogoNav>
@@ -14,7 +19,8 @@ export default function NavBar({}: NavBarProps) {
       <ContainerButtons>
       <Link to="/Login">
         <ButtonLogin>Login</ButtonLogin>
-      </Link>
+        </Link>
+        ({cartItems.length})
         <Shop>
           <FiShoppingCart />
         </Shop>

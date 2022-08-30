@@ -2,13 +2,20 @@ import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import StartRating from "../StarRating/StarRating";
-import { Articulo } from "../../actions";
+import { Articulo, addToCart } from "../../actions";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { ReduxState } from "../../reducer";
 export interface CardProductProps{
   articulo: Articulo
 }
 
-export default function CardProduct({articulo}: CardProductProps){
-
+export default function CardProduct({ articulo }: CardProductProps) {
+   const cartItems = useSelector((state: ReduxState) => state.cartItems);
+   const dispatch = useDispatch<any>();
+   const handleAddShopingCart = (item:any) => {
+    dispatch(addToCart(item));
+  };
   console.log("ESTE ES EL ARTICULO", articulo)
   return (
     <Tarjeta>
@@ -33,6 +40,8 @@ export default function CardProduct({articulo}: CardProductProps){
       <Link to={`/detail/${articulo.id}`}>
         <Button>Details</Button>
       </Link>
+      <Button onClick={()=>handleAddShopingCart(articulo)}>Add cart</Button>
+      
     </Tarjeta>
   );
 }

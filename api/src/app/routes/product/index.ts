@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 import { Router } from "express";
 import prisma from "../../../db";
 

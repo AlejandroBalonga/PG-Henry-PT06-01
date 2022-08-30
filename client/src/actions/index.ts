@@ -2,12 +2,13 @@ import axios from 'axios';
 import { Dispatch } from 'redux';
 
 import {
-    GET_ARTICULOS,
-    GET_DETAIL_PRODUCT,
-    GET_CATEGORIES,
-    GET_TOTALARTICULOS,
-    SET_ERROR
-} from "./actiontype"
+  GET_ARTICULOS,
+  GET_DETAIL_PRODUCT,
+  GET_CATEGORIES,
+  GET_TOTALARTICULOS,
+  SET_ERROR,
+  ADD_CART,
+} from "./actiontype";
 
 export interface Articulo{
     id:number,    
@@ -34,6 +35,16 @@ export interface params{
     name: string
     order: string
     direction: string
+}
+
+export function addToCart(item: Articulo) {
+  return async function (dispatch: Dispatch) {
+    try {
+      return dispatch({ type: ADD_CART, payload: item });
+    } catch (error) {
+      return dispatch({ type: SET_ERROR, payload: "error" });
+    }
+  };
 }
 
 
