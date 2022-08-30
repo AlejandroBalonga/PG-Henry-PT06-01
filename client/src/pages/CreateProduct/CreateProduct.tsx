@@ -18,7 +18,7 @@ export default function CreateProduct() {
     categoryId: undefined,
   });
 
-  let [image, setImage] =useState<File>()
+  // let [image, setImage] =useState<File>()
 
   function handlechange(e) {
     if (e.target.name === "price") {
@@ -39,29 +39,36 @@ export default function CreateProduct() {
     }
   }
 
-  function handleImageChange(e:React.ChangeEvent<HTMLInputElement>){
-    setImage(e.target.files[0])
-  }
+  // function handleImageChange(e:React.ChangeEvent<HTMLInputElement>){
+  //   setImage(e.target.files[0])
+  // }
 
-  function handlePostImage(e){
-    dispatch(postImage(image))
-  }
+  // function handlePostImage(e){
+  //   dispatch(postImage(image))
+  // }
 
+  console.log(input);
   function handelSubmit(e) {
     dispatch(postProduct(input));
   }
 
   return (
     <Container>
+      <Link to="/Home">
+        {" "}
+        <ButonToHome>Volver a home</ButonToHome>{" "}
+      </Link>
+
       <Form onSubmit={(e) => handelSubmit(e)}>
         <div>
           <Label>Nombre</Label>
-          <Input1 type="text" name="brand" onChange={(e) => handlechange(e)} />
+          <Input1 type="text" name="name" onChange={(e) => handlechange(e)} />
         </div>
         <div>
           <Label>Imagen</Label>
-          <input type="file" onChange={(e) => handleImageChange(e)} />
-          <button onClick={(e)=> handlePostImage(e)}>Subir Imagen</button>
+          <Input1 type="text" name="img" onChange={(e) => handlechange(e)} />
+          {/* <input type="file" onChange={(e) => handleImageChange(e)} />
+          <button onClick={(e)=> handlePostImage(e)}>Subir Imagen</button> */}
         </div>
         <div>
           <Label>Estado</Label>
@@ -97,18 +104,41 @@ export default function CreateProduct() {
   );
 }
 
-const Container = styled.div`
-margin: 0;
-background-attachment: initial;
+const ButonToHome = styled.button`
+  font-family: "Kalam", cursive;
+  font-size: 15px;
+  font-size: bold;
+  height: 65px;
+  margin: 8px;
+  background-color: #335d90;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 0.4rem;
 
-background-size: cover;
-background-repeat: no-repeat;
-background-position: center;
-height: auto;
-/* width: 100vw; */
-z-index: -1;
-min-height: 120vh;
-text-align: center;
+  &:hover {
+    box-shadow: 0 0 10px 0 #335d90 inset, 0 0 10px 4px #335d90;
+    transform: scale(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+`;
+
+const Container = styled.div`
+  margin: 0;
+  background-attachment: initial;
+
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: auto;
+  /* width: 100vw; */
+  z-index: -1;
+  min-height: 120vh;
+  text-align: center;
   vertical-align: center;
 `;
 
@@ -152,7 +182,7 @@ const Label = styled.div`
 `;
 
 const Input1 = styled.input`
-type: text;
+  type: text;
   font-size: 15px;
   /* font-weight: bold; */
   border: solid 1px black !important;
@@ -167,10 +197,10 @@ type: text;
 `;
 
 const Button = styled.button`
-margin: 35px;
-font-size: 20px;
-padding: 10px;
-box-shadow: 0 0 40px 40px #335d90 inset, 0 0 0 0 #335d90;
+  margin: 35px;
+  font-size: 20px;
+  padding: 10px;
+  box-shadow: 0 0 40px 40px #335d90 inset, 0 0 0 0 #335d90;
   -webkit-transition: all 150ms ease-in-out;
   transition: all 150ms ease-in-out;
   color: white;

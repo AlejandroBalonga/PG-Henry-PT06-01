@@ -25,7 +25,7 @@ export default function TopMenu({ onClickOpcion }: TopMenuProps) {
         ) : (
           <Div onClick={(e) => onClickOpcion(cat.id)}> {cat.name} </Div>
         )
-      }
+     ) }
     </TopMenuContainer>
   );
 }

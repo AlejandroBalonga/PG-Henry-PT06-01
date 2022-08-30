@@ -20,9 +20,9 @@ export default function App() {
           {/* <Routes> */}
             <Route path="home" element={<Home />} />
             <Route path="login" element={<Login />} />
-            <Route path="*" element={<ErrorCard/>} />
-            <Route path="createproduct" element={<CreateProduct/>}/>
+            <Route path="CreateProduct" element={<CreateProduct/>}/>
             <Route path="product/:id" element={< DetailCardProduct/>}/>
+            <Route path="*" element={<ErrorCard/>} />
           {/* </Routes> */}
         {/* </Route> */}
       </Routes>
