@@ -13,7 +13,8 @@ export interface CardProductProps{
 export default function CardProduct({ articulo }: CardProductProps) {
    const cartItems = useSelector((state: ReduxState) => state.cartItems);
    const dispatch = useDispatch<any>();
-   const handleAddShopingCart = (item:any) => {
+  const handleAddShopingCart = (item: any) => {
+     
     dispatch(addToCart(item));
   };
   console.log("ESTE ES EL ARTICULO", articulo)
@@ -40,7 +41,7 @@ export default function CardProduct({ articulo }: CardProductProps) {
       <Link to={`/detail/${articulo.id}`}>
         <Button>Details</Button>
       </Link>
-      <Button onClick={()=>handleAddShopingCart(articulo)}>Add cart</Button>
+      <Button onClick={e => { e.preventDefault(); handleAddShopingCart(articulo) }}>Add cart</Button>
       
     </Tarjeta>
   );
