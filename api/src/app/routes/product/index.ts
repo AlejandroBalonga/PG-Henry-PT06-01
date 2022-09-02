@@ -34,7 +34,9 @@ productRoutes.post("/", async (req, res) => {
     res.status(400).json({ message: `the 'state' must be a string` });
     return;
   }
-  const newProduct = await prisma.product.create({
+
+   
+  /*const newProduct = await prisma.product.create({
     data: {
       name: name,
       brand: brand,
@@ -45,7 +47,7 @@ productRoutes.post("/", async (req, res) => {
       state: state,
     },
   });
-  res.status(200).send(newProduct);
+  res.status(200).send(newProduct);*/
 });
 
 productRoutes.get("/", async (req, res) => {
