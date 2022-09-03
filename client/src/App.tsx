@@ -6,6 +6,8 @@ import NavBar from "./components/NavBar/NavBar";
 import ErrorCard from "./components/ErrorCard/ErrorCard";
 import CreateProduct from "./pages/CreateProduct/CreateProduct";
 import Login from "./components/Login/Login";
+import Signup from "./components/Signup/Signup";
+
 import DetailCardProduct from "./components/CardProduct/DetailCardProduct";
 
 
@@ -20,6 +22,8 @@ export default function App() {
           {/* <Routes> */}
             <Route path="home" element={<Home />} />
             <Route path="login" element={<Login />} />
+            <Route path="signup" element={<Signup />} />
+
             <Route path="*" element={<ErrorCard/>} />
             <Route path="CreateProduct" element={<CreateProduct/>}/>
             <Route path="product/:id" element={< DetailCardProduct/>}/>

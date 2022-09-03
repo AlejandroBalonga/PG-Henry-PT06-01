@@ -26,6 +26,9 @@ export default function NavBar({}: NavBarProps) {
       <Link to="/Login">
         <ButtonLogin>Login</ButtonLogin>
       </Link>
+      <Link to="/Signup">
+        <ButtonLogin>Signup</ButtonLogin>
+      </Link>
         <Shop>
           <FiShoppingCart />
         </Shop>
