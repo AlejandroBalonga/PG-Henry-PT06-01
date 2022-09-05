@@ -10,18 +10,25 @@ datasource db {
 model Product {
   id           Int            @id @default(autoincrement())
   name         String
-  brand        String
   stock        Int
   price        Float
   img          String
   state        String
   categoryId   Int
   category     Category       @relation(fields: [categoryId], references: [id])
+  brandId      Int
+  brand        Brand          @relation(fields: [brandId], references: [id])
   order_detail Order_detail[]
 
 }
 
 model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Brand {
   id       Int       @id @default(autoincrement())
   name     String
   products Product[]

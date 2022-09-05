@@ -5,6 +5,7 @@ import {
   GET_ARTICULOS,
   GET_DETAIL_PRODUCT,
   GET_CATEGORIES,
+  GET_MANUFACTURER,
   GET_TOTALARTICULOS,
   SET_ERROR,
 } from "./actiontype";
@@ -25,6 +26,10 @@ export interface Articulo{
 }
 
 export interface Category {
+  id: number;
+  name: String;
+}
+export interface Manufacturer {
   id: number;
   name: String;
 }
@@ -83,10 +88,44 @@ export function getCategorias() {
   };
 }
 
+export function getManufacturer() {
+  return async function (dispatch: Dispatch) {
+    try {
+      var json = await axios.get<Manufacturer[]>("http://localhost:3001/manufacturer");
+
+      return dispatch({ type: GET_MANUFACTURER, payload: json.data });
+    } catch (error) {
+      return dispatch({ type: SET_ERROR, payload: "error" });
+    }
+  };
+}
+
 export function postProduct(payload) {
   return function (dispatch) {
     return axios
       .post("http://localhost:3001/product", payload)
+      .then((response) => response)
+      .catch((error) => {
+        dispatch({ type: SET_ERROR, payload: error });
+      });
+  };
+}
+
+export function postCategory(payload) {
+  return function (dispatch) {
+    return axios
+      .post("http://localhost:3001/category", payload )
+      .then((response) => response)
+      .catch((error) => {
+        dispatch({ type: SET_ERROR, payload: error });
+      });
+  };
+}
+
+export function postManufacturer(payload) {
+  return function (dispatch) {
+    return axios
+      .post("http://localhost:3001/manufacturer", payload)
       .then((response) => response)
       .catch((error) => {
         dispatch({ type: SET_ERROR, payload: error });

@@ -1,13 +1,14 @@
-import { SET_ERROR, GET_ARTICULOS, GET_CATEGORIES, GET_TOTALARTICULOS, GET_DETAIL_PRODUCT } from '../actions/actiontype';
-import {  Articulo, Category}from '../actions';
+import { SET_ERROR, GET_ARTICULOS, GET_MANUFACTURER, GET_CATEGORIES, GET_TOTALARTICULOS, GET_DETAIL_PRODUCT } from '../actions/actiontype';
+import {  Articulo, Category, Manufacturer}from '../actions';
 
 export interface ReduxState {
-    articulos: Articulo[]
-    categorias: Category[]
-    detailsProduct: Articulo
-    page: number
-    pageSize: number
-    totalCount: number
+  articulos: Articulo[];
+  categorias: Category[];
+  manufacturer: Manufacturer[];
+  detailsProduct: Articulo;
+  page: number;
+  pageSize: number;
+  totalCount: number;
 }
 
 interface actionI {
@@ -18,6 +19,7 @@ interface actionI {
 const initialState: ReduxState = {
     articulos: [],
     categorias: [],
+    manufacturer: [],
     detailsProduct: undefined ,
     page: 1,
     pageSize: 12,
@@ -36,6 +38,11 @@ function rootReducer(state = initialState, action: actionI) {
             return {
                 ...state,
                 categorias: action.payload,
+            }
+        case GET_MANUFACTURER:
+            return {
+                ...state,
+                manufacturer: action.payload,
             }
         case GET_TOTALARTICULOS:
             return {

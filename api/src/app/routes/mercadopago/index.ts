@@ -14,8 +14,6 @@ mercadopago.configure({
   access_token: ACCESS_TOKEN
 });
 
-
-
 mercadoPagoRoutes.get('/', (req, res) => {
 // TENGO QUE RECIBIR POR BODY
 // ARRAY DE OBJETOS DE PRODUCTOS -> carrito

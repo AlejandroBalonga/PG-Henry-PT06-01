@@ -6,12 +6,12 @@ import passport from "passport";
 const productRoutes = Router();
 
  productRoutes.post("/", async (req, res) => {
-  const { name, brand, categoryId, stock, price, img, state } = req.body;
+  const { name, brandId, categoryId, stock, price, img, state } = req.body;
   if (typeof name !== "string") {
     res.status(400).json({ message: `the 'name' must be a string` });
     return;
   }
-  if (typeof brand !== "string") {
+  if (typeof brandId !== "number") {
     res.status(400).json({ message: `the 'brand' must be a string` });
     return;
   }
@@ -38,14 +38,15 @@ const productRoutes = Router();
   const newProduct = await prisma.product.create({
     data: {
       name: name,
-      brand: brand,
+      brandId: brandId,
       categoryId: categoryId,
       stock: stock,
       price: price,
       img: img,
       state: state,
     },
-  });
+  });  
+   
   res.status(200).send(newProduct);
 }); 
 

@@ -1,9 +1,9 @@
 import { Router } from "express";
 import prisma from "../../../db";
 
-const categoryRoutes = Router();
+const manufacturerRoutes = Router();
 
-categoryRoutes.post("/", async (req, res) => {
+manufacturerRoutes.post("/", async (req, res) => {
   try {
     const { name } = req.body;
     if (typeof name !== "string") {
@@ -11,32 +11,32 @@ categoryRoutes.post("/", async (req, res) => {
       return;
     }
 
-    const newCategory = await prisma.category.create({
+    const newBrand = await prisma.brand.create({
       data: {
         name: name
       },
     });
-    res.status(200).json(newCategory);
+    res.status(200).json(newBrand);
   } catch (error) {
     console.log("post category fail", error);
-    res.status(400).json({ message: `post category fail ${error}` });
+    res.status(400).json({ message: `post brand fail ${error}` });
     return;
   }
 });
 
 /////obtengo todas las categorias.
-categoryRoutes.get("/", async (req, res) => {
+manufacturerRoutes.get("/", async (req, res) => {
   const name = req.query.name;
 
-  let allCategories = await prisma.category.findMany();
-  if (allCategories) {
-    res.status(200).send(allCategories);
+  let allBrand = await prisma.brand.findMany();
+  if (allBrand) {
+    res.status(200).send(allBrand);
   } else {
     res.status(404).send([]);
   }
 });
 
-categoryRoutes.put("/:id", async (req, res) => {
+manufacturerRoutes.put("/:id", async (req, res) => {
   const categoryId = Number(req.params.id);
   const { name } = req.body;
 
@@ -50,7 +50,7 @@ categoryRoutes.put("/:id", async (req, res) => {
   res.status(200).json(categoryToChange);
 });
 
-categoryRoutes.delete('/:id', async (req, res) => {
+manufacturerRoutes.delete('/:id', async (req, res) => {
   
   try {
     const categoryId = Number(req.params.id);
@@ -64,4 +64,4 @@ categoryRoutes.delete('/:id', async (req, res) => {
   }
 });
 
-export default categoryRoutes;
+export default manufacturerRoutes;

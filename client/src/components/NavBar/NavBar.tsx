@@ -10,25 +10,23 @@ export default function NavBar({}: NavBarProps) {
   return (
     <NavBarContainer>
       <div>
-       
         <div>
-        <Img
-          id="logo"
-          src={Logo}
-          alt=""
-        />
-      </div>
+          <Img id="logo" src={Logo} alt="" />
+        </div>
       </div>
       <ContainerButtons>
-      <Link to="/CreateProduct">
-        <ButtonLogin>Create</ButtonLogin>
-      </Link>
-      <Link to="/Login">
-        <ButtonLogin>Login</ButtonLogin>
-      </Link>
-      <Link to="/Signup">
-        <ButtonLogin>Signup</ButtonLogin>
-      </Link>
+        <Link to="/CreateProduct">
+          <ButtonLogin>Create</ButtonLogin>
+        </Link>
+        <Link to="/admin">
+          <ButtonLogin>Dashboard</ButtonLogin>
+        </Link>
+        <Link to="/Login">
+          <ButtonLogin>Login</ButtonLogin>
+        </Link>
+        <Link to="/Signup">
+          <ButtonLogin>Signup</ButtonLogin>
+        </Link>
         <Shop>
           <FiShoppingCart />
         </Shop>
