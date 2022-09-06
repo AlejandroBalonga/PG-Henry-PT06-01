@@ -3,6 +3,7 @@ import {
   GET_ARTICULOS,
   GET_CATEGORIES,
   GET_TOTALARTICULOS,
+  SET_DASHBOARDMENU,
   GET_DETAIL_PRODUCT,
   POST_SIGNIN,
   CLEAR_STATE
@@ -15,6 +16,7 @@ import { Articulo, Category } from "../actions";
 import jwtdecode from "jwt-decode";
 
 export interface ReduxState {
+  dashboardmenu: String;
   articulos: Articulo[];
   categorias: Category[];
   detailsProduct: Articulo;
@@ -31,6 +33,7 @@ interface actionI {
 }
 
 const initialState: ReduxState = {
+  dashboardmenu: '',
   articulos: [],
   categorias: [],
   detailsProduct: undefined,
@@ -47,6 +50,11 @@ function rootReducer(state: ReduxState, action: actionI) {
       return {
         ...state,
         articulos: action.payload,
+      };
+    case SET_DASHBOARDMENU:
+      return {
+        ...state,
+        dashboardmenu: action.payload,
       };
     case GET_CATEGORIES:
       return {
@@ -79,12 +87,12 @@ function rootReducer(state: ReduxState, action: actionI) {
         token: action.payload,
       };
 
-      case CLEAR_STATE:
-        return {
-          ...state,
-          user: undefined,
-          token: ""
-        };
+    case CLEAR_STATE:
+      return {
+        ...state,
+        user: undefined,
+        token: "",
+      };
     default:
       if (!state) {
         const localState = getLocalstorageState();

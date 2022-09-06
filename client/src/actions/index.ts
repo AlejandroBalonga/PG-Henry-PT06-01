@@ -6,6 +6,7 @@ import {
   GET_DETAIL_PRODUCT,
   GET_CATEGORIES,
   GET_TOTALARTICULOS,
+  SET_DASHBOARDMENU,
   SET_ERROR,
   POST_SIGNIN,
   CLEAR_STATE
@@ -82,6 +83,19 @@ export function getCategorias() {
     }
   };
 }
+
+export function setDashboardMenu(payload) {
+  return async function (dispatch: Dispatch) {
+    try {
+
+      return dispatch({ type: SET_DASHBOARDMENU, payload: payload });
+    } catch (error) {
+      return dispatch({ type: SET_ERROR, payload: "error" });
+    }
+  };
+}
+
+;
 
 export function postProduct(token, payload) {
   return function (dispatch) {

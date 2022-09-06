@@ -25,6 +25,7 @@ export default function Home() {
   });
 
   const allProducts = useSelector((state: ReduxState) => state.articulos);
+  console.log(allProducts)
 
   const totalCount = useSelector((state1: ReduxState) => state1.totalCount);
 

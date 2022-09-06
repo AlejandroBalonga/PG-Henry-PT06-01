@@ -27,6 +27,9 @@ export default function NavBar({}: NavBarProps) {
       <ContainerButtons>
       <Link to="/Home">
       <ButtonLogin onClick={handleLogout}>Logout</ButtonLogin>
+        </Link>
+        <Link to="/admin">
+        <ButtonLogin>Admin</ButtonLogin>
       </Link>
       <Link to="/CreateProduct">
         <ButtonLogin>Create</ButtonLogin>

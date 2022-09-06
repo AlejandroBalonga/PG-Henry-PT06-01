@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux';
 import { ReduxState } from './reducer/index';
 import { Navigate } from "react-router-dom";
 import Details from './components/CardProduct/DetailCardProduct/Details';
+import Dashboard from "./components/Dashboard/index";
 
 
 
@@ -30,6 +31,7 @@ export default function App() {
           {/* <Routes> */}
             <Route path="home" element={<Home />} />
             <Route path="login" element={<Login />} />
+            <Route path="admin" element={<Dashboard />} />
             <Route path="signup" element={<Signup />} />
             <Route path="*" element={<ErrorCard/>} />
             <Route path="CreateProduct" element={ user?.role === "ADMIN" ? <CreateProduct/> : <Navigate to="/login" />   }/>
