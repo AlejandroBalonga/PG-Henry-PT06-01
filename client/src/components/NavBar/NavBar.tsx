@@ -51,7 +51,7 @@ export default function NavBar({}: NavBarProps) {
           </Link>
         )}
         <Link to="/ShoppingCart">
-        <Shop><Numerito>{productosCarrito.length} </Numerito>
+        <Shop><Numerito>{productosCarrito?.length} </Numerito>
         <FiShoppingCart />
           
 
