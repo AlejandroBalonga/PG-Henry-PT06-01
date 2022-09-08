@@ -43,6 +43,8 @@ export default function App() {
             <Route path="detail/:id" element={<Details />} /> 
             <Route path="buy" element={<Buy />} /> 
 
+            
+
           {/* </Routes> */}
 
         

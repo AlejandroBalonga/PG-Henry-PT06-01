@@ -21,6 +21,8 @@ export default function NavBar({}: NavBarProps) {
   const token = useSelector((state: ReduxState) => state.token);
   const user = useSelector((state: ReduxState) => state.user);
 
+  let productosCarrito = JSON.parse(localStorage.getItem('carrito'));
+
   return (
     <NavBarContainer>
       <div>
@@ -49,10 +51,13 @@ export default function NavBar({}: NavBarProps) {
           </Link>
         )}
         <Link to="/ShoppingCart">
-          <Shop>
-            <FiShoppingCart />
-          </Shop>
-        </Link>
+        <Shop><Numerito>{productosCarrito.length} </Numerito>
+        <FiShoppingCart />
+          
+
+          
+        </Shop>
+      </Link>
       </ContainerButtons>
     </NavBarContainer>
   );
@@ -151,4 +156,9 @@ const Img = styled.img`
   margin-top: -80px;
   margin-left: 20px;
   z-index: 1;
+`;
+
+const Numerito = styled.div`
+font-size: 12px;
+
 `;

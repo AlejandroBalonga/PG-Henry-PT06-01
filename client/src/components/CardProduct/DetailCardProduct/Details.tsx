@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import {  useParams, useNavigate } from "react-router-dom";
 import { detailsProduct } from "../../../actions/index";
 import { ReduxState } from "../../../reducer";
 import StartRating from "../../StarRating/StarRating";
@@ -29,6 +29,7 @@ import {
   Categoria,
   Parrafo,
   Img,
+  
 
   /*  ProductoVenta,
   InfoVendedor
@@ -39,12 +40,40 @@ export default function Details() {
   const { id } = useParams();
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
   const dispatch = useDispatch<any>();
+  const history = useNavigate();
+  
 
-  console.log(detail + "hola" + id);
-
+  
+  
+  let carrito = JSON.parse(localStorage.getItem('carrito'));
+  if (!carrito) {
+    carrito  = [];
+  }
+  const [articulo, setArticulo] = useState([carrito])
+  
   useEffect(() => {
     dispatch(detailsProduct(id));
-  }, [dispatch]);
+
+  }, [dispatch, articulo]);
+
+
+
+  function handlerAgregarCarrito(detail){
+    setArticulo(detail)
+    if (carrito){
+
+      localStorage.setItem('item', JSON.stringify(detail))
+      carrito.push(JSON.parse(localStorage.getItem('item')))
+      localStorage.setItem('carrito', JSON.stringify(carrito))
+      localStorage.setItem('item', JSON.stringify(""))
+      history('/home')
+      
+     
+      
+    }else {
+      localStorage.setItem('carrito', JSON.stringify([]))
+    }
+  }
 
   return (
     <>
@@ -97,15 +126,15 @@ export default function Details() {
               <Categoria>
                 <h5>{`categoria: ${detail?.category.name}`}</h5>
               </Categoria>
-              <Link to="/buy">
-                {" "}
+              {/* <Link to="/buy">
+                {" "} */}
                 <ButtonComprar>
-                  <Button className="comprar">Comprar ahora</Button>
+                  <Button className="comprar" >Comprar ahora</Button>
                 </ButtonComprar>
-              </Link>
+              {/* </Link> */}
 
               <ButtonCarrito>
-                <Button className="carrito">Agregar al Carrito</Button>
+                <Button className="carrito" onClick={()=>handlerAgregarCarrito(detail)}>Agregar al Carrito</Button>
               </ButtonCarrito>
             </Producto>
             <Garantia />
