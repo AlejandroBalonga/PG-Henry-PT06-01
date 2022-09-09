@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {  useParams, useNavigate } from "react-router-dom";
-import { detailsProduct } from "../../../actions/index";
+import { useParams, useNavigate } from "react-router-dom";
+import { detailsProduct, Articulo } from "../../../actions/index";
 import { ReduxState } from "../../../reducer";
 import StartRating from "../../StarRating/StarRating";
 import NavBar from "../../NavBar/NavBar";
@@ -29,7 +29,7 @@ import {
   Categoria,
   Parrafo,
   Img,
-  
+
 
   /*  ProductoVenta,
   InfoVendedor
@@ -41,16 +41,46 @@ export default function Details() {
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
   const dispatch = useDispatch<any>();
   const history = useNavigate();
-  
 
-  
-  
+
+   const detalle : Articulo =   {
+    id: detail?.id,
+    name:detail?.name ,
+    brand:detail?.brand ,
+    stock:detail?.stock ,
+    price:detail?.price ,
+    img:detail?.img ,
+    state:detail?.state ,
+    categoryId:detail?.categoryId ,
+    category:detail?.category ,
+    totalCount: 1,
+   }
+
+
+
+
+
   let carrito = JSON.parse(localStorage.getItem('carrito'));
   if (!carrito) {
-    carrito  = [];
+    carrito = [];
   }
+
+
+
   const [articulo, setArticulo] = useState([carrito])
-  
+  // const [articulo, setArticulo] = useState([{
+  //   id: carrito.id,
+  //   name: carrito.name,
+  //   brand: carrito.brand,
+  //   stock: carrito.stock,
+  //   price: carrito.price,
+  //   img: carrito.img,
+  //   state: carrito.state,
+  //   categoryId: carrito.categoryId,
+  //   category: carrito.category,
+  //   totalCount: 1}
+  // ])
+
   useEffect(() => {
     dispatch(detailsProduct(id));
 
@@ -58,21 +88,36 @@ export default function Details() {
 
 
 
-  function handlerAgregarCarrito(detail){
-    setArticulo(detail)
-    if (carrito){
+  function handlerAgregarCarrito(detalle) {
 
-      localStorage.setItem('item', JSON.stringify(detail))
+    setArticulo(detalle)
+    // if (carrito) {
+    const index = carrito.findIndex((art) => art.id === detalle.id)
+    if (index === -1) {
+      //agrego
+      localStorage.setItem('item', JSON.stringify(detalle))
       carrito.push(JSON.parse(localStorage.getItem('item')))
       localStorage.setItem('carrito', JSON.stringify(carrito))
       localStorage.setItem('item', JSON.stringify(""))
       history('/home')
-      
-     
-      
-    }else {
-      localStorage.setItem('carrito', JSON.stringify([]))
+
     }
+    else{
+      //no agrego sumo. 
+      //detalle.totalCount = detalle.totalCount + 1;
+      let carritoAux = JSON.parse(localStorage.getItem('carrito'));
+      carritoAux[index].totalCount = carritoAux[index].totalCount + 1;
+      localStorage.setItem('carrito', JSON.stringify(carritoAux))
+      console.log(carrito)
+      history('/home')
+    }
+    console.log(articulo)
+
+
+
+    // } else {
+    //   localStorage.setItem('carrito', JSON.stringify([]))
+    // }
   }
 
   return (
@@ -128,13 +173,13 @@ export default function Details() {
               </Categoria>
               {/* <Link to="/buy">
                 {" "} */}
-                <ButtonComprar>
-                  <Button className="comprar" >Comprar ahora</Button>
-                </ButtonComprar>
+              <ButtonComprar>
+                <Button className="comprar" >Comprar ahora</Button>
+              </ButtonComprar>
               {/* </Link> */}
 
               <ButtonCarrito>
-                <Button className="carrito" onClick={()=>handlerAgregarCarrito(detail)}>Agregar al Carrito</Button>
+                <Button className="carrito" onClick={() => handlerAgregarCarrito(detalle)}>Agregar al Carrito</Button>
               </ButtonCarrito>
             </Producto>
             <Garantia />
@@ -151,27 +196,27 @@ export default function Details() {
 
 const Info = () => {
   return (
-    
-      <Description>
-        <Img id="logo" src={logo} alt="" />
-        <Parrafo>
-          La evolución no para. Por eso CompuStore es experto en tecnología de
-          la más avanzada. En www.compustore.com te ofrecemos un sitio web
-          renovado para que encuentres la mayor variedad de electrodomésticos,
-          tecno y entretenimiento en tu hogar. Nuestro equipo de expertos está
-          preparado para asesorarte y brindarte todos los días una experiencia
-          de compra personalizada que se adapte a lo que buscás. También
-          contamos con un servicio técnico especializado, con asistencia total
-          en posventa para que disfrutes todos los días de tu producto como si
-          fuera el primero. Además, ofrecemos ofertas especiales, descuentos y
-          planes de financiación para que accedas a eso que tanto querés al
-          precio más accesible y con la mejor cuota. Televisores, Smart TV,
-          Celulares libres, Notebooks, Tablets, Aires Acondicionados, Heladeras,
-          Lavarropas y muchos productos en oferta. Disfrutá de la evolución que
-          sólo te puede brindar CompuStore. ¡Bienvenido a la Superevolución!
-        </Parrafo>
-      </Description>
-   
+
+    <Description>
+      <Img id="logo" src={logo} alt="" />
+      <Parrafo>
+        La evolución no para. Por eso CompuStore es experto en tecnología de
+        la más avanzada. En www.compustore.com te ofrecemos un sitio web
+        renovado para que encuentres la mayor variedad de electrodomésticos,
+        tecno y entretenimiento en tu hogar. Nuestro equipo de expertos está
+        preparado para asesorarte y brindarte todos los días una experiencia
+        de compra personalizada que se adapte a lo que buscás. También
+        contamos con un servicio técnico especializado, con asistencia total
+        en posventa para que disfrutes todos los días de tu producto como si
+        fuera el primero. Además, ofrecemos ofertas especiales, descuentos y
+        planes de financiación para que accedas a eso que tanto querés al
+        precio más accesible y con la mejor cuota. Televisores, Smart TV,
+        Celulares libres, Notebooks, Tablets, Aires Acondicionados, Heladeras,
+        Lavarropas y muchos productos en oferta. Disfrutá de la evolución que
+        sólo te puede brindar CompuStore. ¡Bienvenido a la Superevolución!
+      </Parrafo>
+    </Description>
+
   );
 };
 

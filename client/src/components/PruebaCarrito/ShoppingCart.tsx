@@ -40,6 +40,7 @@ export default function ShoppingCart() {
             </DivTitulo>
 
             {productosCarrito?.map((p, i) => (
+              
               <DivProduct key={i}>
                 <DivUnidad>
                   <img src={p.img} alt="img" width="80px" />
