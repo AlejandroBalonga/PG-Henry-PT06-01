@@ -108,16 +108,11 @@ export default function Details() {
       let carritoAux = JSON.parse(localStorage.getItem('carrito'));
       carritoAux[index].totalCount = carritoAux[index].totalCount + 1;
       localStorage.setItem('carrito', JSON.stringify(carritoAux))
-      console.log(carrito)
+      //console.log(carrito)
       history('/home')
     }
-    console.log(articulo)
+    //console.log(articulo)
 
-
-
-    // } else {
-    //   localStorage.setItem('carrito', JSON.stringify([]))
-    // }
   }
 
   return (
@@ -179,7 +174,7 @@ export default function Details() {
               {/* </Link> */}
 
               <ButtonCarrito>
-                <Button className="carrito" onClick={() => handlerAgregarCarrito(detalle)}>Agregar al Carrito</Button>
+                <Button className="carrito" onClick={()=>handlerAgregarCarrito(detalle)}>Agregar al Carrito</Button>
               </ButtonCarrito>
             </Producto>
             <Garantia />
