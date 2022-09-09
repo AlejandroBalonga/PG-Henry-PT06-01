@@ -65,7 +65,7 @@ export default function ShoppingCart() {
 
   function handlerPrecioCantidadMenos(detalle){
     setArticulo(detalle)
-    
+
     const index = productosCarrito.findIndex((art) => art.id === detalle.id)
     let precioUnitario = detail.price
     
@@ -73,8 +73,12 @@ export default function ShoppingCart() {
       carritoAux[index].totalCount = carritoAux[index].totalCount - 1;
       carritoAux[index].price = carritoAux[index].price - precioUnitario
       localStorage.setItem('carrito', JSON.stringify(carritoAux))
-  }
 
+    }
+    const index = productosCarrito?.findIndex((art) => art.id === detalle.id)
+    const controllerDisabledButon = productosCarrito[index]?.totalCount <= 1 ? true : false
+
+ 
   return (
     <>
       <NavBar />
@@ -100,7 +104,8 @@ export default function ShoppingCart() {
                   <Unidad>${p.price?.toFixed(2)}</Unidad>
                   {/* //<p>{p.price * p.totalCount}</p> */}
                   <ButtonComprar  onClick={()=>handlerPrecioCantidad(p)}>+</ButtonComprar>
-                  {<ButtonComprar  onClick={()=>handlerPrecioCantidadMenos(p)}>-</ButtonComprar>}
+                  
+                  {<ButtonComprar disabled={controllerDisabledButon} onClick={()=>handlerPrecioCantidadMenos(p)}>-</ButtonComprar>}
 
                 </DivUnidad>
                 <Decision>

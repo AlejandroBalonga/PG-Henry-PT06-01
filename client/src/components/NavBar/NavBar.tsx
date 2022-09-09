@@ -160,5 +160,14 @@ const Img = styled.img`
 
 const Numerito = styled.div`
 font-size: 12px;
-
+position: absolute;
+z-index: 1;
+width: fit-content;
+height: fit-content;
+border-radius: 9999px;
+background-color: black;
+color: white;
+margin: auto;
+padding-left:6px;
+padding-right: 6px;
 `;
