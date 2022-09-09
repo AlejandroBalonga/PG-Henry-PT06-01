@@ -27,6 +27,20 @@ export interface Articulo {
   totalCount: number;
 }
 
+export interface ArticuloCarrito {
+  id: number;
+  name: String;
+  brand: String;
+  stock: number;
+  price: number;
+  img: string;
+  state: String;
+  categoryId: number;
+  category: Category;
+  totalCount: number;
+  precioTotal: number;  
+}
+
 export interface Category {
   id: number;
   name: String;

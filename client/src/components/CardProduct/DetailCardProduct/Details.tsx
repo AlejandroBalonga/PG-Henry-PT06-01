@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { detailsProduct, Articulo } from "../../../actions/index";
+import { detailsProduct, Articulo, ArticuloCarrito } from "../../../actions/index";
 import { ReduxState } from "../../../reducer";
 import StartRating from "../../StarRating/StarRating";
 import NavBar from "../../NavBar/NavBar";
@@ -43,7 +43,7 @@ export default function Details() {
   const history = useNavigate();
 
 
-   const detalle : Articulo =   {
+   const detalle : ArticuloCarrito =   {
     id: detail?.id,
     name:detail?.name ,
     brand:detail?.brand ,
@@ -54,6 +54,7 @@ export default function Details() {
     categoryId:detail?.categoryId ,
     category:detail?.category ,
     totalCount: 1,
+    precioTotal: 0
    }
 
 
@@ -107,6 +108,7 @@ export default function Details() {
       //detalle.totalCount = detalle.totalCount + 1;
       let carritoAux = JSON.parse(localStorage.getItem('carrito'));
       carritoAux[index].totalCount = carritoAux[index].totalCount + 1;
+      carritoAux[index].precioTotal = carritoAux[index].price * carritoAux[index].totalCount;
       localStorage.setItem('carrito', JSON.stringify(carritoAux))
       //console.log(carrito)
       history('/home')

@@ -52,6 +52,8 @@ export default function ShoppingCart() {
   const [articulo, setArticulo] = useState([productosCarrito])
 
   function handlerPrecioCantidad(detalle){
+    console.log(detalle)
+    
     setArticulo(detalle)
     
     const index = productosCarrito.findIndex((art) => art.id === detalle.id)
@@ -59,7 +61,7 @@ export default function ShoppingCart() {
     
     let carritoAux = JSON.parse(localStorage.getItem('carrito'));
       carritoAux[index].totalCount = carritoAux[index].totalCount + 1;
-      carritoAux[index].price = carritoAux[index].totalCount * precioUnitario
+      //carritoAux[index].price = carritoAux[index].totalCount * precioUnitario
       localStorage.setItem('carrito', JSON.stringify(carritoAux))
   }
 
