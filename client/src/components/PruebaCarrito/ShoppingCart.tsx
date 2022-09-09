@@ -63,17 +63,17 @@ export default function ShoppingCart() {
       localStorage.setItem('carrito', JSON.stringify(carritoAux))
   }
 
-  // function handlerPrecioCantidadMenos(detalle){
-  //   setArticulo(detalle)
+  function handlerPrecioCantidadMenos(detalle){
+    setArticulo(detalle)
     
-  //   const index = productosCarrito.findIndex((art) => art.id === detalle.id)
-  //   let precioUnitario = detail.price
+    const index = productosCarrito.findIndex((art) => art.id === detalle.id)
+    let precioUnitario = detail.price
     
-  //   let carritoAux = JSON.parse(localStorage.getItem('carrito'));
-  //     carritoAux[index].totalCount = carritoAux[index].totalCount - 1;
-  //     carritoAux[index].price = carritoAux[index].totalCount / precioUnitario
-  //     localStorage.setItem('carrito', JSON.stringify(carritoAux))
-  // }
+    let carritoAux = JSON.parse(localStorage.getItem('carrito'));
+      carritoAux[index].totalCount = carritoAux[index].totalCount - 1;
+      carritoAux[index].price = carritoAux[index].price - precioUnitario
+      localStorage.setItem('carrito', JSON.stringify(carritoAux))
+  }
 
   return (
     <>
@@ -96,11 +96,11 @@ export default function ShoppingCart() {
                 <DivUnidad>
                   <img src={p.img} alt="img" width="80px" />
                   <h3>{p.name}</h3>
-                  <Cantidad type="number" min="1" value="1"></Cantidad>
+                  <Cantidad type="number" min="1" value={p.totalCount}></Cantidad>
                   <Unidad>${p.price?.toFixed(2)}</Unidad>
                   {/* //<p>{p.price * p.totalCount}</p> */}
                   <ButtonComprar  onClick={()=>handlerPrecioCantidad(p)}>+</ButtonComprar>
-                  {/* <ButtonComprar  onClick={()=>handlerPrecioCantidadMenos(p)}>-</ButtonComprar> */}
+                  {<ButtonComprar  onClick={()=>handlerPrecioCantidadMenos(p)}>-</ButtonComprar>}
 
                 </DivUnidad>
                 <Decision>
