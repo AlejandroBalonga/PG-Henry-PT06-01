@@ -54,7 +54,7 @@ export default function Details() {
     categoryId:detail?.categoryId ,
     category:detail?.category ,
     totalCount: 1,
-    precioTotal: 0
+    precioTotal: detail?.price,
    }
 
 
@@ -89,7 +89,7 @@ export default function Details() {
 
 
 
-  function handlerAgregarCarrito(detalle) {
+  function handlerAgregarCarrito(detalle, accion: string) {
 
     setArticulo(detalle)
     // if (carrito) {
@@ -100,7 +100,8 @@ export default function Details() {
       carrito.push(JSON.parse(localStorage.getItem('item')))
       localStorage.setItem('carrito', JSON.stringify(carrito))
       localStorage.setItem('item', JSON.stringify(""))
-      history('/home')
+
+      accion === "comprar"?  history('/ShoppingCart') : history('/home')
 
     }
     else{
@@ -111,7 +112,8 @@ export default function Details() {
       carritoAux[index].precioTotal = carritoAux[index].price * carritoAux[index].totalCount;
       localStorage.setItem('carrito', JSON.stringify(carritoAux))
       //console.log(carrito)
-      history('/home')
+      accion === "comprar"?  history('/ShoppingCart') : history('/home')
+      
     }
     //console.log(articulo)
 
@@ -171,12 +173,12 @@ export default function Details() {
               {/* <Link to="/buy">
                 {" "} */}
               <ButtonComprar>
-                <Button className="comprar" >Comprar ahora</Button>
+                <Button className="comprar" onClick={()=>handlerAgregarCarrito(detalle, "comprar")}>Comprar ahora</Button>
               </ButtonComprar>
               {/* </Link> */}
 
               <ButtonCarrito>
-                <Button className="carrito" onClick={()=>handlerAgregarCarrito(detalle)}>Agregar al Carrito</Button>
+                <Button className="carrito" onClick={()=>handlerAgregarCarrito(detalle, "agregar")}>Agregar al Carrito</Button>
               </ButtonCarrito>
             </Producto>
             <Garantia />

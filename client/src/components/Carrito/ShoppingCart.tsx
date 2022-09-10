@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Link } from "react-router-dom";
 import { Articulo, ArticuloCarrito } from "../../actions";
-import NavBar from "../../components/NavBar/NavBar";
+import NavBar from "../NavBar/NavBar";
 import { ReduxState } from "../../reducer";
 
 import {
@@ -22,6 +22,7 @@ import {
   Unidad,
   DivUnidad,
 } from "./stylesCart";
+import { ButtonsWayToShop } from "./styles";
 
 export default function ShoppingCart() {
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
@@ -42,7 +43,11 @@ export default function ShoppingCart() {
 
   let preciofinal = 0;
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
-  preciofinal = productosCarrito?.reduce((sum, b) => sum + Number(b.price), 0);
+  preciofinal = productosCarrito?.reduce(
+    (sum, b) => sum + Number(b.precioTotal),
+    0
+  );
+
   //let carrito = JSON.parse(localStorage.getItem('carrito'));
   if (!productosCarrito) {
     productosCarrito = [];
@@ -50,55 +55,42 @@ export default function ShoppingCart() {
 
   const [articulo, setArticulo] = useState([productosCarrito]);
 
-  function handlerPrecioCantidadSuma(detalle) {
-    //console.log(detalle)
+  function handlerCantidadItem(detalle, signo: string) {
     setArticulo(detalle);
 
     const index = productosCarrito.findIndex((art) => art.id === detalle.id);
     let precioUnitario = detail.price;
 
     let carritoAux = JSON.parse(localStorage.getItem("carrito"));
-    carritoAux[index].totalCount = carritoAux[index].totalCount + 1;
+    signo === "+"
+      ? (carritoAux[index].totalCount = carritoAux[index].totalCount + 1)
+      : (carritoAux[index].totalCount = carritoAux[index].totalCount - 1);
     carritoAux[index].precioTotal =
       carritoAux[index].price * carritoAux[index].totalCount;
     localStorage.setItem("carrito", JSON.stringify(carritoAux));
   }
 
-  function handlerPrecioCantidadResta(detalle) {
+  function handlerDelete(detalle) {
+    //en esta funcion defino el poder elimiar un articulo de carrito
     setArticulo(detalle);
 
-    const index = productosCarrito.findIndex((art) => art.id === detalle.id);
-    let precioUnitario = detail.price;
-
-    let carritoAux = JSON.parse(localStorage.getItem("carrito"));
-    carritoAux[index].totalCount = carritoAux[index].totalCount - 1;
-    carritoAux[index].precioTotal =
-      carritoAux[index].price * carritoAux[index].totalCount;
-    localStorage.setItem("carrito", JSON.stringify(carritoAux));
-  }
-
-  function handlerDelete(detalle) { //en esta funcion defino el poder elimiar un articulo de carrito
-    setArticulo(detalle);
-
-//me guardo lo que tengo en LocalStorage(LS) en una variable
+    //me guardo lo que tengo en LocalStorage(LS) en una variable
     let carritoDelete = JSON.parse(localStorage.getItem("carrito"));
-//creo otra variable para recorrer la posicion dentro de la variable anterior
-    let carritoIndex = carritoDelete.findIndex((el)=> el.id === detalle.id);
-// utlizo el metodo splice para eliminar el elemento encontrado
-    carritoIndex.splice(carritoIndex, 1)
+    //creo otra variable para recorrer la posicion dentro de la variable anterior
+    let carritoIndex = carritoDelete.findIndex((el) => el.id === detalle.id);
+    // utlizo el metodo splice para eliminar el elemento encontrado
+    carritoDelete.splice(carritoIndex, 1);
     //console.log("quiero eliminar este", carritoIndex)
-//cargo de nuevo al LS la variable con la nueva informacion
+    //cargo de nuevo al LS la variable con la nueva informacion
     localStorage.setItem("carrito", JSON.stringify(carritoDelete));
 
     //en resumidas cuentas esto es lo que hago paso a paso, me esta dando error ya que me dice que no reconoce el metodo splice, espero que con esto les sirva
-    //para orientar y puedan sacarlo, los veo a la noche cuando vuelva, les deseo un hermoso y maravilloso día, y que diosito les de bastante sabiduria para 
+    //para orientar y puedan sacarlo, los veo a la noche cuando vuelva, les deseo un hermoso y maravilloso día, y que diosito les de bastante sabiduria para
     //sacar este problema adelante
   }
 
-
   const index = productosCarrito?.findIndex((art) => art.id === detalle.id);
-  const controllerDisabledButon =
-    productosCarrito[index]?.totalCount <= 1 ? true : false;
+  const controllerDisabledButon = productosCarrito[index]?.totalCount <= 1;
 
   return (
     <>
@@ -119,27 +111,23 @@ export default function ShoppingCart() {
                 <DivUnidad>
                   <img src={p.img} alt="img" width="80px" />
                   <h3>{p.name}</h3>
-                  <ButtonComprar onClick={() => handlerPrecioCantidadSuma(p)}>
+                  <ButtonComprar onClick={() => handlerCantidadItem(p, "+")}>
                     +
                   </ButtonComprar>
                   <h3>{p.totalCount}</h3>
-                  {/* <Cantidad value={p.totalCount}></Cantidad> */}
                   <ButtonComprar
-                    /*disabled={controllerDisabledButon}*/ onClick={() =>
-                      handlerPrecioCantidadResta(p)
-                    }
+                    disabled={controllerDisabledButon}
+                    onClick={() => handlerCantidadItem(p, "-")}
                   >
                     -
                   </ButtonComprar>
                   <Unidad>${p.price?.toFixed(2)}</Unidad>unidad
                   <Unidad>${p.precioTotal?.toFixed(2)}</Unidad>total
-                  {/* //<p>{p.price * p.totalCount}</p> */}
-                  {/* <ButtonComprar  onClick={()=>handlerPrecioCantidadSuma(p)}>+</ButtonComprar> */}
                 </DivUnidad>
                 <Decision>
-                  <ButtonComprar onClick={() => handlerDelete(p)}>Delete</ButtonComprar>
-
-                  <ButtonComprar>Comprar ahora</ButtonComprar>
+                  <ButtonComprar onClick={() => handlerDelete(p)}>
+                    Delete
+                  </ButtonComprar>
                 </Decision>
               </DivProduct>
             ))}
@@ -147,11 +135,18 @@ export default function ShoppingCart() {
               <Total>Total</Total>
               <Precio>${preciofinal?.toFixed(2)}</Precio>
             </DivResumen>
-            <ButtonCompra>
-              <Button>
-                <Link to="/PruebaCarrito">Continuar compra</Link>
-              </Button>
-            </ButtonCompra>
+            <ButtonsWayToShop>
+              <ButtonCompra>
+                <Button>
+                  <Link to="/home">Seguir comprando</Link>
+                </Button>
+              </ButtonCompra>
+              <ButtonCompra>
+                <Button>
+                  <Link to="/pagar">Finalizar compra</Link>
+                </Button>
+              </ButtonCompra>
+            </ButtonsWayToShop>
           </Column>
         )}
       </Container>

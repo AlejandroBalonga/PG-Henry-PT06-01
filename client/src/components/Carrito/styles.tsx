@@ -283,4 +283,7 @@ margin-top: -20px;
 `;
 
 
+export const ButtonsWayToShop = styled.div`
+display: grid;
 
+`;

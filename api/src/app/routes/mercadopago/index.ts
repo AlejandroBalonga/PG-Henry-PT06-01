@@ -113,7 +113,7 @@ mercadoPagoRoutes.get("/pagos", async (req, res) => {
       payment_type: payment_type,
     },
   });
-  return res.redirect( CLIENT_URL+"/PruebaCarrito?paystatus=ok");
+  return res.redirect( CLIENT_URL+"/ResultadoCompra?paystatus=ok");
 });
 
 export default mercadoPagoRoutes;

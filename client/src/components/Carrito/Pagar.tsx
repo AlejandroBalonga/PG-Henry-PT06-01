@@ -1,5 +1,5 @@
-import StartRating from "../../StarRating/StarRating";
-import NavBar from "../../NavBar/NavBar";
+import StartRating from "../StarRating/StarRating";
+import NavBar from "../NavBar/NavBar";
 import metodo from "../../../img/metodopago.png";
 import logo from "../../../img/Logo.png";
 import { useState, useEffect } from "react";
@@ -34,7 +34,7 @@ import {
  */
 } from "./styles";
 
-export default function Buy() {
+export default function Pagar() {
   interface datos {
     id: string;
   }
@@ -70,7 +70,6 @@ export default function Buy() {
     quantity: i.totalCount,
     totalPrice: i.precioTotal,
   }));
-
 
   return (
     <>
@@ -139,27 +138,20 @@ export default function Buy() {
                 </p>
               </div>
 
+              {/* 
+              <StartRating /> */}
 
-              <StartRating />
-
-              {
-                !datos ? (
-                  <p>....</p>
-                ) : (
-                  <ButtonCarrito as="a" href={datos} target="_blank">
-                    <Button>Pagar</Button>
-                  </ButtonCarrito>
-                )
-              
-              }
+              {!datos ? (
+                <p>....</p>
+              ) : (
+                <ButtonCarrito as="a" href={datos} target="_blank">
+                  <Button>Pagar</Button>
+                </ButtonCarrito>
+              )}
             </Producto>
-
           </Column>
         </Panel>
       </Container>
     </>
   );
 }
-
-
-
