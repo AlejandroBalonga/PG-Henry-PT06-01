@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Articulo, ArticuloCarrito } from "../../actions";
 import NavBar from "../NavBar/NavBar";
 import { ReduxState } from "../../reducer";
+import {AiOutlineDelete} from "react-icons/ai";
 
 import {
   Container,
@@ -21,8 +22,11 @@ import {
   Cantidad,
   Unidad,
   DivUnidad,
+  ContainerCantidad,
+  DivNombreColumnas,
 } from "./stylesCart";
 import { ButtonsWayToShop } from "./styles";
+import { ButtonCantidad, ButtonDelete } from './stylesCart';
 
 export default function ShoppingCart() {
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
@@ -104,6 +108,14 @@ export default function ShoppingCart() {
           <Column>
             <DivTitulo>
               <h3>Mi CARRITO ({productosCarrito?.length})</h3>
+              <DivNombreColumnas>
+                <h5></h5>
+                <h5>Producto</h5>
+                <h5>Cantidad</h5>
+                <h5>Precio Unidad</h5>
+                <h5>Precio Cantidad</h5>
+                <h5></h5>
+              </DivNombreColumnas>
             </DivTitulo>
 
             {productosCarrito?.map((p, i) => (
@@ -111,31 +123,32 @@ export default function ShoppingCart() {
                 <DivUnidad>
                   <img src={p.img} alt="img" width="80px" />
                   <h3>{p.name}</h3>
-                  <ButtonComprar onClick={() => handlerCantidadItem(p, "+")}>
-                    +
-                  </ButtonComprar>
-                  <h3>{p.totalCount}</h3>
-                  <ButtonComprar
-                    disabled={controllerDisabledButon}
-                    onClick={() => handlerCantidadItem(p, "-")}
-                  >
-                    -
-                  </ButtonComprar>
-                  <Unidad>${p.price?.toFixed(2)}</Unidad>unidad
-                  <Unidad>${p.precioTotal?.toFixed(2)}</Unidad>total
+                  <ContainerCantidad>
+                    <ButtonCantidad
+                      disabled={controllerDisabledButon}
+                      onClick={() => handlerCantidadItem(p, "-")}
+                    >
+                      -
+                    </ButtonCantidad>
+                    <h4>{p.totalCount}</h4>
+                    <ButtonCantidad onClick={() => handlerCantidadItem(p, "+")}>
+                      +
+                    </ButtonCantidad>
+                  </ContainerCantidad>
+                  <Unidad>${p.price?.toFixed(2)}</Unidad>
+                  <Unidad>${p.precioTotal?.toFixed(2)}</Unidad>
+                  <ButtonDelete onClick={() => handlerDelete(p)}>
+                    <AiOutlineDelete/>
+                  </ButtonDelete>
                 </DivUnidad>
-                <Decision>
-                  <ButtonComprar onClick={() => handlerDelete(p)}>
-                    Delete
-                  </ButtonComprar>
-                </Decision>
+                <Decision></Decision>
               </DivProduct>
             ))}
             <DivResumen>
               <Total>Total</Total>
               <Precio>${preciofinal?.toFixed(2)}</Precio>
             </DivResumen>
-            <ButtonsWayToShop>
+            <DivResumen>
               <ButtonCompra>
                 <Button>
                   <Link to="/home">Seguir comprando</Link>
@@ -146,7 +159,7 @@ export default function ShoppingCart() {
                   <Link to="/pagar">Finalizar compra</Link>
                 </Button>
               </ButtonCompra>
-            </ButtonsWayToShop>
+            </DivResumen>
           </Column>
         )}
       </Container>
