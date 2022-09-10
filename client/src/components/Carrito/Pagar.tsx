@@ -136,7 +136,7 @@ export default function Pagar() {
               ))}
               <div>
                 <p>
-                  <b>${preciofinal?.toFixed(2)}</b>
+                  Total a pagar:  <b>${preciofinal?.toFixed(2)}</b>
                 </p>
               </div>
 
