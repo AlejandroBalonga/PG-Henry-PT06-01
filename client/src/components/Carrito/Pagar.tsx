@@ -65,6 +65,7 @@ export default function Pagar() {
   preciofinal = carrito?.reduce((sum, b) => sum + Number(b.precioTotal), 0);
 
   const items_ml = carrito.map((i) => ({
+    img: i.img,
     name: i.name,
     price: i.price,
     quantity: i.totalCount,
@@ -117,16 +118,17 @@ export default function Pagar() {
             {/*  <InfoProducto/> */}
             <Producto>
               {items_ml.map((it, i) => (
-                <ul key={i}>
+                <ul key={i}>              
                   <li>
-                    <b>{it.name}</b>
+                  <img height="30px" width="30px" src={it.img} alt="imagen producto" />
+                    <b>    {it.name}</b>
                   </li>
-                  <li>Cantidad: {it.quantity}</li>
+                  <li>Cantidad:  {it.quantity}</li>
                   <li>
-                    Precio: $<b>{it.price?.toFixed(2)}</b>
+                    Precio: <b>${it.price?.toFixed(2)}</b>
                   </li>
                   <li>
-                    Precio Total: $<b>{it.totalPrice?.toFixed(2)}</b>
+                    Precio Total: <b>${it.totalPrice?.toFixed(2)}</b>
                   </li>
 
                   <li>&nbsp;</li>
