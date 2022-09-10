@@ -287,3 +287,4 @@ export const ButtonsWayToShop = styled.div`
 display: grid;
 
 `;
+

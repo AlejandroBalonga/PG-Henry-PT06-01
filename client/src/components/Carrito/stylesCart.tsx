@@ -39,7 +39,6 @@ export const DivNombreColumnas = styled.div`
   justify-content: center;
   align-items: center;
   margin-bottom: 2px;
-
 `;
 
 export const DivUnidad = styled.div`
@@ -124,21 +123,18 @@ export const ContainerCantidad = styled.div`
 `;
 
 export const ButtonCompra = styled.button`
-margin-right: 1rem;
+  margin-right: 1rem;
 
-margin-top:-1rem;
+  margin-top: -1rem;
   text-align: center;
   border: none;
-  
 `;
-// export const ButtonsWayToShop = styled.div`
-//  width: 500px;
-//   display: inline-flex;
-//   flex-wrap: wrap;
-//   justify-content: center;
-//   margin: 40px 0px 0px 600px;
-// `;
 
+export const ButtonResultadoCompra = styled.button`
+  margin-right: 1rem;
+  text-align: center;
+  border: none;
+`;
 
 export const Button = styled.button`
   display: inline-block;
@@ -175,4 +171,3 @@ export const Precio = styled.div`
     Arial, sans-serif;
   font-size: 26px;
 `;
-

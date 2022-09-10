@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-
-
 import NavBar from "../NavBar/NavBar";
 import { ReduxState } from "../../reducer";
 
@@ -21,24 +19,23 @@ import {
   Cantidad,
   Unidad,
   DivUnidad,
+  ButtonResultadoCompra,
 } from "./stylesCart";
 import { ButtonsWayToShop } from "./styles";
 import { Link } from "react-router-dom";
 
 export default function ResultadoCompra() {
-  
-
-
   return (
     <>
       <NavBar />
       <Container>
+        
         <h1>Probando... Tu compra fue exitosa!! </h1>
-        <ButtonCompra>
-                <Button>
-                  <Link to="/home">Seguir comprando</Link>
-                </Button>
-              </ButtonCompra>
+        <ButtonResultadoCompra>
+          <Button>
+            <Link to="/home">Seguir comprando</Link>
+          </Button>
+        </ButtonResultadoCompra>
         {/* {!productosCarrito ? (
           <DivTitulo>
             <h3>No hay productos en el carrito</h3>
