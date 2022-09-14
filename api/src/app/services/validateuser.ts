@@ -1,29 +1,34 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 export interface ConfirmMail {
-  name: string,
-    surname: string
-    email: string;
-    token: string
-  }
+  name: string;
+  surname: string;
+  email: string;
+  token: string;
+}
 
-export default function validateuser ({name, surname, email, token}: ConfirmMail){
+export default function validateuser({
+  name,
+  surname,
+  email,
+  token,
+}: ConfirmMail) {
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    auth: {
+      user: "compustorehenry@gmail.com",
+      pass: "dnybnopwvxliapcc",
+    },
+  });
 
-    let transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-      auth: {
-          user: 'compustorehenry@gmail.com',
-          pass: "dnybnopwvxliapcc"
-        },
-      });
-  
-      let mailOption={
-          from: 'compustorehenry@gmail.com',
-          to: email,
+  let mailOption = {
+    from: "compustorehenry@gmail.com",
+    to: email,
 
-          subject: "Bienvenido a CompuStore - Importante: completemos la configuración de su cuenta ✔",
-          text: `http://localhost:3000/login/checkmail/${token}`,
-          html:`
+    subject:
+      "Bienvenido a CompuStore - Importante: completemos la configuración de su cuenta ✔",
+    text: `http://localhost:3000/login/checkmail/${token}`,
+    html: `
           <div class="one-div" border="0" cellpadding="0" cellspacing="0" width="70%" style="border-spacing:0; border-left:1px solid #495057; border-right:1px solid #495057; border-bottom:1px solid #495057; border-top:1px solid #495057; margin: 20px 200px; padding: 0 20px 20px 20px" bg="#FFFFFF">
     <wrapper class="header" >
     <container >
@@ -92,17 +97,14 @@ Ya casi está listo para comenzar a utilizar la App de CompuStore. Simplemente h
     </row>
     
   </container>
-  </div> `
+  </div> `,
+  };
 
-      
-      }
-  
-      transporter.sendMail(mailOption, (error, info)=>{
-          if(error){
-               return (error.message)
-          }else{
-             return email
-          }
-      })
-  
+  transporter.sendMail(mailOption, (error, info) => {
+    if (error) {
+      return error.message;
+    } else {
+      return email;
+    }
+  });
 }

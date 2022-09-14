@@ -1,32 +1,31 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
-export interface UserEmail{
-    email: string,
-    name: string,
-    surname: string
+export interface UserEmail {
+  email: string;
+  name: string;
+  surname: string;
 }
 
-export default function sendemail({email, name, surname}: UserEmail){
-    
-    // const mail = String(email)
-    // const namemail = String(name)
-    // const surnamemail = String(surname)
-    // console.log('estoy llegando al confirm', name, surname);
-    
-    let transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-    auth: {
-        user: 'compustorehenry@gmail.com',
-        pass: "dnybnopwvxliapcc"
-      },
-    });
+export default function sendemail({ email, name, surname }: UserEmail) {
+  // const mail = String(email)
+  // const namemail = String(name)
+  // const surnamemail = String(surname)
+  // console.log('estoy llegando al confirm', name, surname);
 
-    let mailOption={
-        from: '"CompuStore 💻🛒👍" <compustorehenry@gmail.com>',
-        to: email,
-        subject: "Hola!!! Su cuenta fue creada con Exito! ✔",
-        html:  // html body
-    `
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    auth: {
+      user: "compustorehenry@gmail.com",
+      pass: "dnybnopwvxliapcc",
+    },
+  });
+
+  let mailOption = {
+    from: '"CompuStore 💻🛒👍" <compustorehenry@gmail.com>',
+    to: email,
+    subject: "Hola!!! Su cuenta fue creada con Exito! ✔",
+    // html body
+    html: `
     <div class="one-div" border="0" cellpadding="0" cellspacing="0" width="70%" style="border-spacing:0; border-left:1px solid #495057; border-right:1px solid #495057; border-bottom:1px solid #495057; border-top:1px solid #495057; margin: 20px 200px; padding: 0 20px 20px 20px" bg="#FFFFFF">
     <wrapper class="header" >
     <container >
@@ -85,14 +84,13 @@ Estamos muy felices de tenerte 😊</b><br/>
   </div>
 
     `,
+  };
+
+  transporter.sendMail(mailOption, (error, info) => {
+    if (error) {
+      return error.message;
+    } else {
+      return email;
     }
-
-    transporter.sendMail(mailOption, (error, info)=>{
-        if(error){
-             return (error.message)
-        }else{
-           return email
-        }
-    })
-
+  });
 }
