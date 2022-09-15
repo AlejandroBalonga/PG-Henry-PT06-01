@@ -17,57 +17,57 @@ export interface user {
   state: Boolean;
 }
 
-// userRoutes.post("/", async (req, res, next) => {
-//   const { id, name, surname, email, password, state, role } = req.body;
-//   //hasheamos el password
-//   /* let passwordHash = await bcryptjs.hash(password, 10); // hasheo pasword */
-//   let passUpdate;
-//   let passwordHash = null;
-//   let existsEmail;
+userRoutes.post("/", async (req, res, next) => {
+  const { id, name, surname, email, password, state, role } = req.body;
+  //hasheamos el password
+  /* let passwordHash = await bcryptjs.hash(password, 10); // hasheo pasword */
+  let passUpdate;
+  let passwordHash = null;
+  let existsEmail;
 
-//   if (password) {
-//     let salt = await bcrypt.genSalt(10);
-//     passwordHash = await bcrypt.hash(password, salt);
-//     passUpdate = passwordHash;
-//   } else {
-//     existsEmail = await prisma.user.findFirst({
-//       where: {
-//         id: id,
-//       },
-//     });
-//     if (!existsEmail) {
-//       return res
-//         .status(400)
-//         .send("There is already a registered user with the email");
-//     }
-//     passUpdate = existsEmail?.password;
-//   }
+  if (password) {
+    let salt = await bcrypt.genSalt(10);
+    passwordHash = await bcrypt.hash(password, salt);
+    passUpdate = passwordHash;
+  } else {
+    existsEmail = await prisma.user.findFirst({
+      where: {
+        id: id,
+      },
+    });
+    if (!existsEmail) {
+      return res
+        .status(400)
+        .send("There is already a registered user with the email");
+    }
+    passUpdate = existsEmail?.password;
+  }
 
-//   try {
-//     const newUser = await prisma.user.upsert({
-//       where: { id: id },
-//       update: {
-//         name: name,
-//         surname: surname,
-//         email: email,
-//         state: Boolean(state),
-//         password: passUpdate,
-//         role: role,
-//       },
-//       create: {
-//         name: name,
-//         surname: surname,
-//         email: email,
-//         state: Boolean(state),
-//         password: passUpdate,
-//         role: role,
-//       },
-//     });
-//     res.status(200).send(newUser);
-//   } catch (error) {
-//     return next(error);
-//   }
-/*let existsEmail = await prisma.user.findFirst({
+  try {
+    const newUser = await prisma.user.upsert({
+      where: { id: id },
+      update: {
+        name: name,
+        surname: surname,
+        email: email,
+        state: state,
+        password: passUpdate,
+        role: role,
+      },
+      create: {
+        name: name,
+        surname: surname,
+        email: email,
+        state: state,
+        password: passUpdate,
+        role: role,
+      },
+    });
+    res.status(200).send(newUser);
+  } catch (error) {
+    return next(error);
+  }
+  /* existsEmail = await prisma.user.findFirst({
     where: {
       email: email,
     },
@@ -90,8 +90,8 @@ export interface user {
     } catch (error) {
       return next(error);
     }
-  }*/
-// });
+  } */
+});
 
 userRoutes.delete("/:id", async (req, res) => {
   try {

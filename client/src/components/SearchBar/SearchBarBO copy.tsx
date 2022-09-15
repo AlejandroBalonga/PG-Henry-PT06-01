@@ -59,9 +59,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export interface SearchBarProps {
   onSearch: Function;
+  componentRender: any;
 }
 
-export default function SearchBar({ onSearch }: SearchBarProps) {
+export default function SearchBar({ componentRender,onSearch }: SearchBarProps) {
   const [state, setState] = useState("");
 
   function handlechange(e) {
@@ -80,10 +81,14 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       });
     }
     onSearch(state);
-    setState("");
+    //setState("");
   }
   return (
-    <> <Search>
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static" color="default">
+        <Toolbar>
+          {componentRender}
+          <Search>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -102,7 +107,9 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
           >
             <SearchIcon />
           </IconButton>
-  </>              
+        </Toolbar>
+      </AppBar>
+    </Box>
   );
 }
 

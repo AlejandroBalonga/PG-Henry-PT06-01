@@ -24,7 +24,8 @@ export default function DenseTable() {
     name: undefined,
     order: undefined,
     direction: undefined,
-    userId: null
+    userId: null,
+    filter:null
   });
   const allOrders = useSelector((state: ReduxState) => state.ordersBO);
   const totalOrders = useSelector((state1: ReduxState) => state1.totalOrders);
@@ -40,7 +41,8 @@ export default function DenseTable() {
         name: state.name,
         order: state.order,
         direction: state.direction,
-        userId: user.role==='CLIENT'?user.id:0
+        userId: user.role === 'CLIENT' ? user.id : 0,
+        filter:null
       })
     );
   }, [
@@ -50,7 +52,8 @@ export default function DenseTable() {
     state.name,
     state.order,
     state.direction,
-    state.userId
+    state.userId,
+    state.filter
   ]);
 
   function clickDelete(id) {

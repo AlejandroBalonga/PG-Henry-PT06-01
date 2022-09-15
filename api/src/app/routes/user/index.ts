@@ -27,7 +27,7 @@ userRoutes.get("/:id", async (req, res) => {
 
   userUnique
     ? res.status(200).send(userUnique)
-    : res.send(400).send("no se reconoce el usuario");
+    : res.status(400).send("no se reconoce el usuario");
 });
 
 export interface user {

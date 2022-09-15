@@ -76,6 +76,8 @@ authRouter.post('/signup', async (req, res) => {
 
 authRouter.post('/signin', async (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password);
+  
   if (!email || !password) {
     res.status(400).send('ingrese usuario y contraseña');
     return;

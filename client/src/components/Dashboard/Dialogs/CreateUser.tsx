@@ -150,8 +150,12 @@ export default function FormDialog({
 
   return (
     <div>
-      
-      <Button color="info" variant="contained" fullWidth onClick={handleClickOpen}>
+      <Button
+        color="info"
+        variant="contained"
+        fullWidth
+        onClick={handleClickOpen}
+      >
         {user.id ? "Update" : "Create"}
       </Button>
       <Dialog open={open} onClose={handleClose}>
@@ -234,8 +238,9 @@ export default function FormDialog({
               <MenuItem value="">
                 <em>None</em>
               </MenuItem>
-              <MenuItem value="true">Active</MenuItem>
-              <MenuItem value="false">Inactive</MenuItem>
+              <MenuItem value="ACTIVE">ACTIVE</MenuItem>
+              <MenuItem value="BLOCKED">BLOCKED</MenuItem>
+              <MenuItem value="NOTCONFIRMED">NOTCONFIRMED</MenuItem>
             </Select>
             <FormHelperText>{input.errors?.categoryId?.message}</FormHelperText>
           </FormControl>

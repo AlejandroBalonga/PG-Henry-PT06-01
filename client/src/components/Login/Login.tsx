@@ -66,12 +66,11 @@ export default function Signup() {
             <Div1>
               <Input4
                 type={showPwd2 ? "text" : "password"}
-                name="passwordconfirm"
-                id="passwordconfirm"
-                placeholder="Ingresa tu nueva contraseña"
-                //   id="password"
-
+                  id="password"
+                  name="password"
                 onChange={(e) => handleChange(e)}
+                placeholder="Ingresa tu nueva contraseña"
+
               />
               <Icon4 onClick={handleShowPwd2}>
                 {showPwd2 ? (

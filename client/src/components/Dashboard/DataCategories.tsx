@@ -7,8 +7,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import Paginado from "../../components/Paginado/Paginado";
 
-import { useSelector } from "react-redux";
+
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxState } from "../../reducer";
 import { Category } from "../../actions";
 
@@ -16,8 +18,7 @@ import CreateCategory from "../Dashboard/Dialogs/CreateCategory";
 
 import ButtonMUI from "@mui/material/Button";
 
-import { useDispatch } from "react-redux";
-import { getCategorias, deleteCategoryBO } from "../../actions";
+import { getCategorias,getCategoriasBO, deleteCategoryBO } from "../../actions";
 
 
 
@@ -30,7 +31,16 @@ function createData(
 
 
 export default function DenseTable() {
-  const [state, setState] = useState(null);
+  const [state, setState] = useState({
+    page: 1,
+    pageSize: 12,
+    name: undefined,
+    order: undefined,
+    direction: undefined,
+    categoryId: undefined,
+    filter: null,
+  });
+  const dispatch = useDispatch<any>();
   const allCategories = useSelector((state: ReduxState) => state.categorias).map(
     (item) => {
       return createData(
@@ -39,52 +49,90 @@ export default function DenseTable() {
       );
     }
   );
+  const totalCategorias = useSelector((state1: ReduxState) => state1.totalCategorias);
+
+  useEffect(() => {
+    dispatch(
+      getCategoriasBO({
+        page: state.page,
+        pageSize: state.pageSize,
+        name: state.name,
+        order: state.order,
+        direction: state.direction,
+        filter: null,
+      })
+    );
+  }, [
+    dispatch,
+    state.page,
+    state.pageSize,
+    state.name,
+    state.order,
+    state.direction,
+    state.filter,
+  ]);
 
   async function clickDelete(id) {
     await dispatch(deleteCategoryBO(id));
     await dispatch(
-      getCategorias()
+      getCategoriasBO({
+        page: state.page,
+        pageSize: 12,
+        name: state.name,
+        order: "id",
+        direction: "desc",
+        filter: state.filter,
+      })
     );
   }
 
-  const dispatch = useDispatch<any>();
-
-  useEffect(() => {
-    dispatch(getCategorias());
-  }, [
-    dispatch
-  ]);
-
   return (
-    <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-      <Table sx={{ minWidth: 650 }} size="small" stickyHeader aria-label="sticky table">
-        <TableHead>
-          <TableRow>
-            <TableCell>id</TableCell>
-            <TableCell align="right">Name</TableCell>
-            <TableCell align="right">Update</TableCell>
-            <TableCell align="right">Delete</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {allCategories.map((row) => (
-            <TableRow
-              key={row.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell align="right">{row.id}</TableCell>
-              <TableCell align="right">{row.name}</TableCell>
-              <TableCell align="right">
-                  <CreateCategory category={row} stateC={ state }/>
+    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+      <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
+        <Table
+          sx={{ minWidth: 650 }}
+          size="small"
+          stickyHeader
+          aria-label="sticky table"
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell>id</TableCell>
+              <TableCell align="right">Name</TableCell>
+              <TableCell align="right">Update</TableCell>
+              <TableCell align="right">Delete</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {allCategories.map((row) => (
+              <TableRow
+                key={row.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell align="right">{row.id}</TableCell>
+                <TableCell align="right">{row.name}</TableCell>
+                <TableCell align="right">
+                  <CreateCategory category={row} stateC={state} />
                 </TableCell>
                 <TableCell align="right">
-                  <ButtonMUI variant="outlined" onClick={()=>clickDelete(row.id)}>Delete</ButtonMUI>
+                  <ButtonMUI
+                    variant="outlined"
+                    onClick={() => clickDelete(row.id)}
+                  >
+                    Delete
+                  </ButtonMUI>
                 </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Paginado
+        onPageChange={(page) => setState({ ...state, page })}
+        totalCount={totalCategorias}
+        pageSize={state.pageSize}
+      />
+    </Paper>
   );
 }
 

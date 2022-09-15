@@ -119,8 +119,9 @@ export default function DenseTable() {
                       <MenuItem value={null} selected>
                         <em>All</em>
                       </MenuItem>
-                      <MenuItem value="Active">Active</MenuItem>
-                      <MenuItem value="Inactive">Inactive</MenuItem>
+                      <MenuItem value="ACTIVE">ACTIVE</MenuItem>
+                      <MenuItem value="BLOCKED">BLOCKED</MenuItem>
+                      <MenuItem value="NOTCONFIRMED">NOTCONFIRMED</MenuItem>
                     </Select>
                   </FormControl>
                 </TableCell>

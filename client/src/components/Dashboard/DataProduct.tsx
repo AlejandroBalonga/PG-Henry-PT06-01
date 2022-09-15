@@ -33,6 +33,7 @@ export default function DenseTable() {
     categoryId: undefined,
     filter: null
   });
+  
   const allProducts = useSelector((state: ReduxState) => state.articulosbo);
   const totalCount = useSelector((state1: ReduxState) => state1.totalCount);
   const dispatch = useDispatch<any>();
@@ -46,7 +47,7 @@ export default function DenseTable() {
         order: state.order,
         direction: state.direction,
         categoryId: state.categoryId,
-        filter: null
+        filter: state.filter,
       })
     );
   }, [
@@ -57,6 +58,7 @@ export default function DenseTable() {
     state.order,
     state.direction,
     state.categoryId,
+    state.filter
   ]);
 
    async function clickDelete(id) {
@@ -79,7 +81,7 @@ export default function DenseTable() {
        ...state,
        ['filter']: [e.target.name]+'-'+e.target.value ,
      });
-     await dispatch(
+     /* await dispatch(
        getArticulosBO({
          page: state.page,
          pageSize: 12,
@@ -89,7 +91,7 @@ export default function DenseTable() {
          categoryId: state.categoryId,
          filter: [e.target.name] + "-" + e.target.value,
        })
-     );
+     ); */
   }
 
   

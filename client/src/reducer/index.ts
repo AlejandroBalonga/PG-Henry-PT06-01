@@ -7,6 +7,7 @@ import {
   GET_TOTALARTICULOS,
   GET_TOTALORDERS,
   GET_TOTALUSERS,
+  GET_TOTALCATEGORIAS,
   DELETE_PRODUCT,
   DELETE_CATEGORY,
   DELETE_USER,
@@ -16,8 +17,7 @@ import {
   CLEAR_STATE,
   GET_GOOGLE,
   GET_DETAIL_USER,
-  REGISTRO_EXITOSO
-
+  REGISTRO_EXITOSO,
 } from "../actions/actiontype";
 import {
   getLocalstorageState,
@@ -42,6 +42,7 @@ export interface ReduxState {
   totalCount: number;
   totalUser: number;
   totalOrders: number;
+  totalCategorias: number;
   token: string;
   user?: { id: number; email: string; iat: number; role: string };
   error: string;
@@ -59,7 +60,7 @@ const initialState: ReduxState = {
   orders: [],
   users: [],
   detailsUser: undefined,
-  dashboardmenu: "",
+  dashboardmenu: "products",
   articulos: [],
   articulosbo: [],
   categorias: [],
@@ -67,6 +68,7 @@ const initialState: ReduxState = {
   page: 1,
   pageSize: 12,
   totalCount: 0,
+  totalCategorias: 0,
   totalUser: 0,
   totalOrders: 0,
   token: "",
@@ -79,12 +81,11 @@ const initialState: ReduxState = {
 function rootReducer(state: ReduxState, action: actionI) {
   switch (action.type) {
     case REGISTRO_EXITOSO:
-      return{
+      return {
         ...state,
-        mensaje:action.payload,
-        useregistrado:true
-      }
-
+        mensaje: action.payload,
+        useregistrado: true,
+      };
 
     case GET_ARTICULOS:
       return {
@@ -102,11 +103,11 @@ function rootReducer(state: ReduxState, action: actionI) {
         ...state,
         users: action.payload,
       };
-      case GET_DETAIL_USER:
-        return {
-          ...state,
-          detailsUser: action.payload,
-        };
+    case GET_DETAIL_USER:
+      return {
+        ...state,
+        detailsUser: action.payload,
+      };
     case GET_CATEGORIES:
       return {
         ...state,
@@ -127,6 +128,11 @@ function rootReducer(state: ReduxState, action: actionI) {
       return {
         ...state,
         totalCount: action.payload,
+      };
+    case GET_TOTALCATEGORIAS:
+      return {
+        ...state,
+        totalCategorias: action.payload,
       };
     case GET_TOTALORDERS:
       return {
@@ -154,8 +160,8 @@ function rootReducer(state: ReduxState, action: actionI) {
       };
 
     case CLEAR_STATE:
-    setLocalstorageState({token:undefined})  
-    return {
+      setLocalstorageState({ token: undefined });
+      return {
         ...state,
         user: undefined,
         token: "",
@@ -167,7 +173,7 @@ function rootReducer(state: ReduxState, action: actionI) {
       };
     case GET_GOOGLE:
       setLocalstorageState({ token: action.payload });
-      let usergoogle
+      let usergoogle;
       try {
         usergoogle = jwtdecode(action.payload);
       } catch (error) {

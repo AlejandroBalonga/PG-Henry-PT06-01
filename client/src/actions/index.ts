@@ -9,6 +9,7 @@ import {
   DELETE_CATEGORY,
   DELETE_USER,
   GET_TOTALARTICULOS,
+  GET_TOTALCATEGORIAS,
   GET_TOTALUSERS,
   SET_DASHBOARDMENU,
   DELETE_PRODUCT,
@@ -19,7 +20,7 @@ import {
   GET_ORDERS,
   GET_TOTALORDERS,
   GET_DETAIL_USER,
-  REGISTRO_EXITOSO
+  REGISTRO_EXITOSO,
 } from "./actiontype";
 
 const { REACT_APP_API_URL = "http://localhost:3001" } = process.env;
@@ -129,6 +130,7 @@ export interface paramsOrders {
   order: string;
   direction: string;
   userId: number;
+  filter: string;
 }
 
 export interface paramsUser {
@@ -138,6 +140,15 @@ export interface paramsUser {
   order: string;
   direction: string;
   filter: string
+}
+
+export interface paramsCatBO {
+  page: number;
+  pageSize: number;
+  name: string;
+  order: string;
+  direction: string;
+  filter: any;
 }
 
 export interface paramsArtBO {
@@ -502,9 +513,9 @@ export function getUsersBO({
 export function postUserBO(token, payload) {
   return function (dispatch) {
     return axios
-      .post(REACT_APP_API_URL + "/backoffice/user", payload, {
+      .post(REACT_APP_API_URL + "/backoffice/user", payload/* , {
         headers: { authorization: `Bearer ${token}` },
-      })
+      } */)
       .then((response) => {
         //response
         console.log(response);
@@ -563,7 +574,8 @@ export function getOrdersBO({
   name,
   order,
   direction,
-  userId
+  userId,
+  filter
 }: paramsOrders) {
   return async function (dispatch: Dispatch) {
     try {
@@ -618,6 +630,42 @@ export function getArticulosBO({
       return [
         dispatch({ type: GET_ARTICULOS, payload: json.data[1] }),
         dispatch({ type: GET_TOTALARTICULOS, payload: json.data[0] }),
+      ];
+      //
+    } catch (error) {
+      return dispatch({ type: SET_ERROR, payload: "error" });
+    }
+  };
+}
+
+export function getCategoriasBO({
+  page,
+  pageSize,
+  name,
+  order,
+  direction,
+  filter,
+}: paramsCatBO) {
+  return async function (dispatch: Dispatch) {
+    try {
+      var json = await axios.get<Category[]>(
+        REACT_APP_API_URL + "/backoffice/category",
+        {
+          params: {
+            page: page,
+            pageSize: pageSize,
+            name: name,
+            order: order,
+            direction: direction,
+            filter: filter,
+          },
+        }
+      );
+      // console.log(json.data[1]);
+
+      return [
+        dispatch({ type: GET_CATEGORIES, payload: json.data[1] }),
+        dispatch({ type: GET_TOTALCATEGORIAS, payload: json.data[0] }),
       ];
       //
     } catch (error) {

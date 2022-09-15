@@ -42,7 +42,7 @@ productRoutes.post(
         stock: Number(stock),
         price: Number(price),
 
-        //priceSpecial: Number(priceSpecial),
+        priceSpecial: Number(priceSpecial),
 
         img: img,
         state: state,
@@ -54,7 +54,7 @@ productRoutes.post(
         stock: Number(stock),
         price: Number(price),
 
-        //priceSpecial: Number(priceSpecial),
+        priceSpecial: Number(priceSpecial),
 
         img: img,
         state: state,
@@ -133,9 +133,13 @@ productRoutes.get("/", async (req, res) => {
     const filter_field = String(filter).split('-')[0];
     const filter_val = String(filter).split("-")[1];
     if (filter_field === "state" && filter_val!=='null') {
-      where.state = String(filter_val);
+      where.state = {
+        contains: String(filter_val),
+       // mode: "insensitive",
+      };
     }    
   }
+
   if (name) {
     where.name = {
       contains: name,
@@ -146,7 +150,7 @@ productRoutes.get("/", async (req, res) => {
     where.categoryId = filterCategoryId;
   }
 
-  
+  console.log(where);
 
   const searchproducts = await prisma.product.findMany({
     skip: (pageNumber - 1) * pageSizeNumber,
@@ -158,7 +162,7 @@ productRoutes.get("/", async (req, res) => {
   const totalCuantity = await prisma.product.count({
     where: where,
   });
-  console.log(searchproducts);
+  //console.log(searchproducts);
   res.status(200).json([totalCuantity, searchproducts]);
 });
 

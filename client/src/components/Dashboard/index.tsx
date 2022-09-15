@@ -9,7 +9,6 @@ import DataOrder from "./DataOrder";
 
 import Menu from "./Menu";
 
-import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 
 import styled from "styled-components";
@@ -25,7 +24,11 @@ import CreateUser from "../Dashboard/Dialogs/CreateUser";
 import SearchBar from "../../components/SearchBar/SearchBarBO";
 import Paper from "@mui/material/Paper";
 
-import { getArticulos, getCategorias, Articulo } from "../../actions";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+
+import { getArticulosBO, getArticulos, getCategorias, Articulo, getCategoriasBO, getUsersBO, getOrdersBO } from "../../actions";
 
 
 function Dashboard() {
@@ -37,6 +40,7 @@ function Dashboard() {
     order: undefined,
     direction: undefined,
     categoryId: undefined,
+    filter:null,
     articuloInit: {
       id: 0,
       name: null,
@@ -66,17 +70,57 @@ function Dashboard() {
   const dispatch = useDispatch<any>();
 
   useEffect(() => {
-    dispatch(getCategorias());
-    dispatch(
-      getArticulos({
-        page: state.page,
-        pageSize: state.pageSize,
-        name: state.name,
-        order: state.order,
-        direction: state.direction,
-        categoryId: state.categoryId,
-      })
-    );
+    if (dashboardmenu === "products") {
+      dispatch(getCategorias());
+      dispatch(
+        getArticulosBO({
+          page: state.page,
+          pageSize: state.pageSize,
+          name: state.name,
+          order: state.order,
+          direction: state.direction,
+          categoryId: state.categoryId,
+          filter: state.filter,
+        })
+      );
+    }
+    if (dashboardmenu === "categories") {
+      dispatch(
+        getCategoriasBO({
+          page: state.page,
+          pageSize: state.pageSize,
+          name: state.name,
+          order: state.order,
+          direction: state.direction,
+          filter: state.filter,
+        })
+      );
+    }
+    if (dashboardmenu === "users") {
+      dispatch(
+        getUsersBO({
+          page: state.page,
+          pageSize: state.pageSize,
+          name: state.name,
+          order: state.order,
+          direction: state.direction,
+          filter: state.filter,
+        })
+      );
+      if (dashboardmenu === "orders") {
+        dispatch(
+          getOrdersBO({
+            page: state.page,
+            pageSize: state.pageSize,
+            name: state.name,
+            order: state.order,
+            direction: state.direction,
+            userId:0,
+            filter: state.filter,
+          })
+        );
+      }
+    }
   }, [
     dispatch,
     state.page,
@@ -85,6 +129,7 @@ function Dashboard() {
     state.order,
     state.direction,
     state.categoryId,
+    state.filter,
   ]);
 
   const handleClickOpen = () => {
@@ -140,12 +185,16 @@ function Dashboard() {
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <SearchBar
-                    onSearch={(search) =>
-                      setState({ ...state, page: 1, name: search })
-                    }
-                    componentRender={getComponentRouter(dashboardmenu, state)}
-                  />
+                  <Box sx={{ flexGrow: 1 }}>
+                    <AppBar position="static" color="default">
+                      <Toolbar>
+                        {getComponentRouter(dashboardmenu, state)}
+                        <SearchBar
+                          onSearch={(search) => setState({ ...state, page: 1, name: search })}
+                        />                        
+                      </Toolbar>
+                    </AppBar>
+                  </Box>
                 </Grid>
                 {/* <Grid item xs={8}></Grid>
                 <Grid item xs={2}>
