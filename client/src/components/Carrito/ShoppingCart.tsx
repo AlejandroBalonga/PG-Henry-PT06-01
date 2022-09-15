@@ -52,6 +52,7 @@ export default function ShoppingCart() {
 
   let preciofinal = 0;
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
+  //suma el precio total de los productos en carrito
   preciofinal = productosCarrito?.reduce(
     (sum, b) => sum + Number(b.precioTotal),
     0
@@ -63,11 +64,10 @@ export default function ShoppingCart() {
 
   const [articulo, setArticulo] = useState([productosCarrito]);
 
+  //modifica la cantidad de items
   function handlerCantidadItem(detalle, signo: string) {
     setArticulo(detalle);
-
     const index = productosCarrito.findIndex((art) => art.id === detalle.id);
-
     let carritoAux = JSON.parse(localStorage.getItem("carrito"));
     signo === "+"
       ? (carritoAux[index].totalCount = carritoAux[index].totalCount + 1)
@@ -79,17 +79,20 @@ export default function ShoppingCart() {
     localStorage.setItem("carrito", JSON.stringify(carritoAux));
   }
 
+  //elimina items del carrito LS
   function handlerDelete(detalle) {
     setArticulo(detalle);
-
     let carritoDelete = JSON.parse(localStorage.getItem("carrito"));
     let carritoIndex = carritoDelete.findIndex((el) => el.id === detalle.id);
     carritoDelete.splice(carritoIndex, 1);
     localStorage.setItem("carrito", JSON.stringify(carritoDelete));
   }
 
-  const index = productosCarrito?.findIndex((art) => art.id === detalle.id);
-  const controllerDisabledButon = productosCarrito[index]?.totalCount === 1;
+  //deshabilita el boton de disminuir cantidad si es <= 1
+  function habilitarBoton(i) {
+    return productosCarrito[i]?.totalCount <= 1 ? true : false;
+  }
+
   const carritoOrden = productosCarrito.map((p) => {
     return {
       productId: p.id,
@@ -104,15 +107,13 @@ export default function ShoppingCart() {
     status: "Abierto",
     carritoOrden: carritoOrden,
   };
-  //console.log("quierover", ordenPorEnviar.userId);
 
+  //verifica si hay orden abierta en BD
   async function verificarSiHayOrderAbierta() {
-    console.log("estoy aaaccccaaa");
     const orderCheck = await axios.get(
       REACT_APP_API_URL + "/backoffice/order/checkorder/" + user.id
     );
 
-    console.log("te quiero encontrar", orderCheck);
     if (orderCheck.data === "") {
       return "sin ordenes abiertas";
     } else {
@@ -130,7 +131,6 @@ export default function ShoppingCart() {
         carritoOrden: ordenPorEnviar.carritoOrden,
       }
     );
-
     console.log("actualizado: " + actualizado);
   }
 
@@ -198,7 +198,8 @@ export default function ShoppingCart() {
                   <h3>{p.name}</h3>
                   <ContainerCantidad>
                     <ButtonCantidad
-                      /*disabled={controllerDisabledButon}*/
+                      value={i}
+                      disabled={habilitarBoton(i)}
                       onClick={() => handlerCantidadItem(p, "-")}
                     >
                       -

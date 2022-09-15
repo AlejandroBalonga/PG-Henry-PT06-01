@@ -32,7 +32,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="ShoppingCart" element={<ShoppingCart />} />
-        <Route path="PruebaCarrito" element={<PruebaCarrito />} />
+        {/* <Route path="PruebaCarrito" element={<PruebaCarrito />} /> */}
         <Route path="home" element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="admin" element={user?.role === "ADMIN" ? <div><Dashboard /> </div> : <Navigate to="/home" />} />
@@ -40,18 +40,16 @@ export default function App() {
         <Route path="signup" element={<Signup />} />
         <Route path="*" element={<ErrorCard />} />
         <Route path="CreateProduct" element={user?.role === "ADMIN" ? <CreateProduct /> : <Navigate to="/login" />} />
-        <Route path="product/:id" element={<DetailCardProduct />} />
+       {/* <Route path="product/:id" element={<DetailCardProduct />} /> */}
         <Route path="detail/:id" element={<Details />} />
-        <Route path="buy" element={<Buy />} />
+        {/* <Route path="buy" element={<Buy />} /> */}
         <Route path="checkgoogle/:token" element={<CheckGoogle />} />
         <Route path="resultadocompra" element={<ResultadoCompra />} /> 
         <Route path="Pagar" element={<Pagar/>}/>
         <Route path="terminos-y-condiciones" element={<Terminos/>} />
         <Route path="login/checkmail/:token" element={<CheckMail/>}/>
-        <Route path="login/checkmail/changepassword" element={<ChangePassword/>}/>
+        <Route path="login/checkmail/changepassword/:token" element={<ChangePassword/>}/>
         <Route path="login/checkmail/enviochangepassword" element={<EnvioChangePassword/>}/>
-       
-       
 
       </Routes>
     </BrowserRouter>

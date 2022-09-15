@@ -7,7 +7,7 @@ import { loginUser } from "../../actions/index";
 import { useSelector } from "react-redux";
 import { ReduxState } from "../../reducer";
 import { BsGoogle } from "react-icons/bs";
-
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 export default function Signup() {
   const dispatch = useDispatch<any>();
@@ -35,6 +35,13 @@ export default function Signup() {
     window.location.href = "http://localhost:3001/auth/google";
   }
 
+  const [showPwd2, setShowPwd2] = useState(false);
+
+  function handleShowPwd2(e) {
+    e.preventDefault();
+    setShowPwd2(!showPwd2);
+  }
+
   return (
     <div>
       {user?.role === "CLIENT" ? (
@@ -55,20 +62,41 @@ export default function Signup() {
               onChange={(e) => handleChange(e)}
               placeholder="Ingrese su Correo"
             />
-            <Input4
-              type="password"
-              name="password"
-              onChange={(e) => handleChange(e)}
-              placeholder="Ingrese su contraseña"
-            />
-            <Recuerdo>¿Olvidaste tu contraseña?</Recuerdo>
+
+            <Div1>
+              <Input4
+                type={showPwd2 ? "text" : "password"}
+                name="passwordconfirm"
+                id="passwordconfirm"
+                placeholder="Ingresa tu nueva contraseña"
+                //   id="password"
+
+                onChange={(e) => handleChange(e)}
+              />
+              <Icon4 onClick={handleShowPwd2}>
+                {showPwd2 ? (
+                  <AiFillEye color="black" />
+                ) : (
+                  <AiFillEyeInvisible color="black" />
+                )}
+              </Icon4>
+            </Div1>
+
+            <Recuerdo>
+              <a href="login/checkmail/enviochangepassword">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </Recuerdo>
+
             <Button type="submit">Iniciar sesión</Button>
             <O> O continuar con</O>
 
             <Button onClick={redirect}>
-              <DivIcon><BsGoogle/></DivIcon>
-              
-              Iniciar sesión con Google</Button>
+              <DivIcon>
+                <BsGoogle />
+              </DivIcon>
+              Iniciar sesión con Google
+            </Button>
 
             <P>
               <a href="/Signup">¿No tienes cuenta? Registrate</a>
@@ -163,10 +191,15 @@ const Recuerdo = styled.p`
 
   font-size: 15px;
   color: #335d90;
+
+  > a {
+    text-decoration: none;
+    color: #335d90;
+  }
 `;
 
 const Button = styled.button`
-display: inline-flex;
+  display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
@@ -188,7 +221,6 @@ display: inline-flex;
   }
 `;
 
-
 const P = styled.div`
   text-align: center;
   margin-top: 15px;
@@ -200,8 +232,7 @@ const P = styled.div`
   }
 `;
 
-
-const DivIcon=styled.div`
+const DivIcon = styled.div`
   display: inline-block;
   margin-right: 15px;
   margin-bottom: 5px;
@@ -210,7 +241,25 @@ const DivIcon=styled.div`
 `;
 
 const O = styled.div`
-font-size: 15px;
-color: black;
-margin: 10px 0;
+  font-size: 15px;
+  color: black;
+  margin: 10px 0;
+`;
+
+const Div1 = styled.div`
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+`;
+
+const Icon4 = styled.div`
+  position: absolute;
+  cursor: pointer;
+  /* top: 29%; */
+  right: 5%;
+  justify-content: right;
+  align-items: right;
 `;

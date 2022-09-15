@@ -41,7 +41,9 @@ productRoutes.post(
         categoryId: categoryId,
         stock: Number(stock),
         price: Number(price),
-        // priceSpecial: Number(priceSpecial),
+
+        //priceSpecial: Number(priceSpecial),
+
         img: img,
         state: state,
       },
@@ -51,7 +53,9 @@ productRoutes.post(
         categoryId: categoryId,
         stock: Number(stock),
         price: Number(price),
-        // priceSpecial: Number(priceSpecial),
+
+        //priceSpecial: Number(priceSpecial),
+
         img: img,
         state: state,
       },

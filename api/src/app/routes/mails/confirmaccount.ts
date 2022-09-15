@@ -4,6 +4,8 @@ import jwtdecode from "jwt-decode";
 import prisma from '../../../db';
 import sendemail from '../../services/enviomail';
 
+const bcrypt = require('bcrypt');
+
 const accountRoutes = Router()
 
 export interface TokenUser {

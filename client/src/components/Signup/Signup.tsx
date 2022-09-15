@@ -8,6 +8,7 @@ import { useFormik } from 'formik';
 import { useSelector } from 'react-redux';
 import { ReduxState } from '../../reducer';
 import swal from 'sweetalert2';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 
 export default function Signup() {
   const dispatch = useDispatch<any>();
@@ -64,6 +65,13 @@ export default function Signup() {
       resetForm();
     }
   });
+
+  const [showPwd2, setShowPwd2] = useState(false);
+
+  function handleShowPwd2(e) {
+    e.preventDefault();
+    setShowPwd2(!showPwd2);
+  }
 
   /* const [input, setInput] = useState({
     name: "",
@@ -137,8 +145,10 @@ export default function Signup() {
         {formik.touched.email && formik.errors.email ? (
           <Span>{formik.errors.email}</Span>
         ) : null}
+
+        <Div1>
         <Input4
-          type="password"
+          type={showPwd2 ? "text" : "password"}
           name="password"
           /* onChange={(e)=>handleChange(e)} */
           placeholder="Ingrese su contraseña"
@@ -146,9 +156,17 @@ export default function Signup() {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
         />
+        <Icon4 onClick={handleShowPwd2}>
+                {showPwd2 ? (
+                  <AiFillEye color="black" />
+                ) : (
+                  <AiFillEyeInvisible color="black" />
+                )}
+              </Icon4>
         {formik.touched.password && formik.errors.password ? (
           <Span>{formik.errors.password}</Span>
         ) : null}
+        </Div1>
         <Acuerdo>
           Acepto los{' '}
           <a href="/terminos-y-condiciones">términos y condiciones</a>
@@ -315,4 +333,22 @@ const P = styled.div`
     text-decoration: none;
     color: #335d90;
   }
+`;
+
+const Div1 = styled.div`
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+`;
+
+const Icon4 = styled.div`
+  position: absolute;
+  cursor: pointer;
+  /* top: 29%; */
+  right: 5%;
+  justify-content: right;
+  align-items: right;
 `;

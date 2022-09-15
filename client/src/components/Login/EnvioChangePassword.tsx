@@ -1,15 +1,43 @@
+import axios from "axios";
+import { useState } from "react";
 import styled from "styled-components";
+import Swal from "sweetalert2";
 import NavBar from "../NavBar/NavBar";
 
 
 export default function EnvioChangePassword() {
+  
+  
+  const [input, setInput] = useState({
+    email: "",
+  });
+
+  function handleChange(e) {
+    e.preventDefault();
+    setInput({
+      ...input,
+      [e.target.name]: e.target.value,
+    });
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    axios.get(`http://localhost:3001/auth/resetpassword?email=${input.email}`)
+    Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Revisá tu correo para restablecer su contraseña',
+        showConfirmButton: false,
+        timer: 2500
+      })
+  }
   
 
   return (
     
        <Body>
           <NavBar />
-          <Form >
+          <Form onSubmit={(e) => handleSubmit(e)}>
             <Title>
               ¿Olvidaste tu contraseña?
             </Title>
@@ -20,7 +48,9 @@ export default function EnvioChangePassword() {
             <Input3
               type="email"
               name="email"
-              placeholder="Ingrese su Correo"
+              placeholder="Ingresá tu Correo"
+              onChange={(e) => handleChange(e)}
+
             />
            
             
