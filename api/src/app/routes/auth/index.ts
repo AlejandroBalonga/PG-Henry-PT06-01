@@ -13,7 +13,7 @@ const bcrypt = require('bcrypt');
 const authRouter = Router();
 
 export interface TokenPayload {
-  id: Number;
+  id: number;
   email: string;
   role: string;
 }

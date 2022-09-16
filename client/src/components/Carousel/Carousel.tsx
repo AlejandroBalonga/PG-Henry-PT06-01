@@ -52,5 +52,6 @@ return (
 
 const CarouselContainer = styled.div`
   margin-top: 70px;
+  z-index: -1;
 `;
 

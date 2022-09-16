@@ -68,21 +68,22 @@ function Dashboard() {
   });
 
   const dispatch = useDispatch<any>();
+  const user = useSelector((state: ReduxState) => state.user);
 
-  useEffect(() => {
+  useEffect(() =>  {
     if (dashboardmenu === "products") {
-      dispatch(getCategorias());
-      dispatch(
-        getArticulosBO({
-          page: state.page,
-          pageSize: state.pageSize,
-          name: state.name,
-          order: state.order,
-          direction: state.direction,
-          categoryId: state.categoryId,
-          filter: state.filter,
-        })
-      );
+         dispatch(getCategorias());
+         dispatch(
+          getArticulosBO({
+            page: state.page,
+            pageSize: state.pageSize,
+            name: state.name,
+            order: state.order,
+            direction: state.direction,
+            categoryId: state.categoryId,
+            filter: state.filter,
+          })
+        );      
     }
     if (dashboardmenu === "categories") {
       dispatch(
@@ -105,6 +106,7 @@ function Dashboard() {
           order: state.order,
           direction: state.direction,
           filter: state.filter,
+          userId: user.role === "CLIENT" ? user.id : null,
         })
       );
       if (dashboardmenu === "orders") {
@@ -176,7 +178,7 @@ function Dashboard() {
           <Grid item xs={12}>
             <Paper
               sx={{
-                height: 100,
+                height: 60,
                 width: "100%",
               }}
             />
@@ -186,14 +188,18 @@ function Dashboard() {
               <Grid container spacing={3}>
                 <Grid item xs={12}>
                   <Box sx={{ flexGrow: 1 }}>
-                    <AppBar position="static" color="default">
-                      <Toolbar>
-                        {getComponentRouter(dashboardmenu, state)}
-                        <SearchBar
-                          onSearch={(search) => setState({ ...state, page: 1, name: search })}
-                        />                        
-                      </Toolbar>
-                    </AppBar>
+                    {user.role === "ADMIN" ?
+                      <AppBar position="static" color="default">
+                        <Toolbar>
+                          {getComponentRouter(dashboardmenu, state)}
+                          <SearchBar
+                            onSearch={(search) =>
+                              setState({ ...state, page: 1, name: search })
+                            }
+                          />
+                        </Toolbar>
+                      </AppBar>
+                      : null}
                   </Box>
                 </Grid>
                 {/* <Grid item xs={8}></Grid>

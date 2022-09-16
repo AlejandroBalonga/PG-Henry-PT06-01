@@ -71,16 +71,16 @@ export default function DenseTable() {
             aria-label="sticky table">
             <TableHead>
               <TableRow>
-                <TableCell>orderId</TableCell>
-                <TableCell align="right">Amount</TableCell>
-                <TableCell align="right">Date</TableCell>
-                <TableCell align="right">Status</TableCell>
-                <TableCell align="right">User</TableCell>
-                <TableCell align="right">Payment ID</TableCell>
-                <TableCell align="right">Payment Status</TableCell>
-                <TableCell align="right">Payment Type</TableCell>
-                <TableCell align="right">View Details</TableCell>
-                <TableCell align="right">Delete</TableCell>
+                <TableCell>ID de la Orden</TableCell>
+                <TableCell align="right">Monto</TableCell>
+                <TableCell align="right">Fecha</TableCell>
+                <TableCell align="right">Estado</TableCell>
+                <TableCell align="right">Usuario</TableCell>
+                <TableCell align="right">Pago ID</TableCell>
+                <TableCell align="right">Estado del Pago</TableCell>
+                <TableCell align="right">Tipo de pago</TableCell>
+                <TableCell align="right">Ver Detalles</TableCell>
+                {/* <TableCell align="right">Borrar</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -98,18 +98,17 @@ export default function DenseTable() {
                     <TableCell align="right">{row.payment_id}</TableCell>
                     <TableCell align="right">{row.payment_status}</TableCell>
                     <TableCell align="right">{row.payment_type}</TableCell>
-                    <TableCell align="right">
-                         
+                    <TableCell align="right">                         
                        <ViewDetails viewdetails={row?.order_detail} stateC={state} /> 
                     </TableCell>
-                    <TableCell align="right">
+                    {/* <TableCell align="right">
                       <ButtonMUI
                         variant="outlined"
                         onClick={() => clickDelete(row.id)}
                       >
-                        Delete
+                        Borrar
                       </ButtonMUI>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 )
               })}

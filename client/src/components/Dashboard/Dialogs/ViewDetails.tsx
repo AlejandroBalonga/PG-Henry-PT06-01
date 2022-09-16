@@ -48,7 +48,7 @@ export default function FormDialog({ viewdetails, stateC }: CardOrderProps) {
         View
       </Button>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Details Order # {viewdetails[0].orderId}</DialogTitle>
+        <DialogTitle>Detalles de Orden # {viewdetails[0].orderId}</DialogTitle>
         <DialogContent>
           <Paper sx={{ width: "100%", overflow: "hidden" }}>
             <TableContainer
@@ -64,11 +64,11 @@ export default function FormDialog({ viewdetails, stateC }: CardOrderProps) {
                 <TableHead>
                   <TableRow>
                     <TableCell align="right">Img</TableCell>
-                    <TableCell align="right">Name</TableCell>
-                    <TableCell align="right">Brand</TableCell>
-                    <TableCell align="right">Category</TableCell>
-                    <TableCell align="right">Price</TableCell>
-                    <TableCell align="right">Quantity</TableCell>
+                    <TableCell align="right">Nombre</TableCell>
+                    <TableCell align="right">Marca</TableCell>
+                    <TableCell align="right">Categoria</TableCell>
+                    <TableCell align="right">Precio</TableCell>
+                    <TableCell align="right">Cantidad</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -105,7 +105,7 @@ export default function FormDialog({ viewdetails, stateC }: CardOrderProps) {
           </Paper>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>Cancelar</Button>
         </DialogActions>
       </Dialog>
     </div>

@@ -72,9 +72,9 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     if (state === "") {
       // alert("Enter a product to search...")
       Swal.fire({
-        title: "Error!",
-        text: "Introduce un producto para buscar...",
-        icon: "error",
+        title: "Info!",
+        text: "Introduce palabra a buscar...",
+        icon: "info",
         confirmButtonText: "Volver",
         confirmButtonColor: "#335d90",
       });
@@ -88,7 +88,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Search…"
+              placeholder="Buscar...."
               inputProps={{ "aria-label": "search" }}
               onChange={handlechange}
               value={state}

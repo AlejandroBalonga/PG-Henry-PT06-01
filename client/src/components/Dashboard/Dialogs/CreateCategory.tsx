@@ -7,7 +7,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Category } from "../../../actions";
-import { postCategoryBO, getCategorias } from "../../../actions";
+import { postCategoryBO, getCategoriasBO } from "../../../actions";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxState } from "../../../reducer/index";
 
@@ -45,7 +45,6 @@ export default function FormDialog({
         errors["name"] = { action: { error: true }, message: "required" };
       }
     }
-
     return errors;
   }
 
@@ -58,7 +57,23 @@ export default function FormDialog({
     });
     if (Object.getOwnPropertyNames(errors).length === 0) {
       await dispatch(postCategoryBO(token, input));
-      await dispatch(getCategorias());
+      await dispatch(
+        getCategoriasBO({
+          page: 1,
+          pageSize: 12,
+          name: stateC.name,
+          order: "id",
+          direction: "desc",
+          filter: stateC.filter,
+        })
+      );
+      if (input.id <= 0) {
+        setInput({
+          id: 0,
+          name: '',
+          errors: null,
+        });
+      }
       handleClose();
     }
   }
@@ -78,10 +93,10 @@ export default function FormDialog({
   return (
     <div>
       <Button color="info" variant="contained" fullWidth onClick={handleClickOpen}>
-        {category.id ? "Update" : "Create"}
+        {category.id ? "Actualizar" : "Crear"}
       </Button>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>New Category</DialogTitle>
+        <DialogTitle>{category.id ? "Actualizar Categoria" : "Nueva Categoria"}</DialogTitle>
         <DialogContent>
           <TextField
             {...input.errors?.name?.action}
@@ -99,7 +114,7 @@ export default function FormDialog({
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleSubmit}>Save</Button>
+          <Button onClick={handleSubmit}>Salvar</Button>
         </DialogActions>
       </Dialog>
     </div>

@@ -81,9 +81,9 @@ export default function DenseTable() {
        ...state,
        ['filter']: [e.target.name]+'-'+e.target.value ,
      });
-     /* await dispatch(
+     await dispatch(
        getArticulosBO({
-         page: state.page,
+         page: 1,
          pageSize: 12,
          name: state.name,
          order: "id",
@@ -91,7 +91,7 @@ export default function DenseTable() {
          categoryId: state.categoryId,
          filter: [e.target.name] + "-" + e.target.value,
        })
-     ); */
+     );
   }
 
   
@@ -107,18 +107,18 @@ export default function DenseTable() {
           >
             <TableHead>
               <TableRow>
-                <TableCell>Img</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell align="right">Brand</TableCell>
-                <TableCell align="right">Category</TableCell>
-                <TableCell align="right">Stock</TableCell>
-                <TableCell align="right">Price</TableCell>
+                <TableCell>Imagenes</TableCell>
+                <TableCell>Nombre</TableCell>
+                <TableCell align="right">Marca</TableCell>
+                <TableCell align="right">Categoria</TableCell>
+                <TableCell align="right">Cantida Almacen</TableCell>
+                <TableCell align="right">Precio</TableCell>
                 <TableCell align="right">
                   <FormControl
                     sx={{ m: 1, width: "100%" }}
                     size="small"
                   >
-                    <InputLabel id="state">State</InputLabel>
+                    <InputLabel id="state">Estado</InputLabel>
                     <Select
                       labelId="state"
                       id="state"
@@ -129,13 +129,13 @@ export default function DenseTable() {
                       <MenuItem value={null} selected>
                         <em>All</em>
                       </MenuItem>
-                      <MenuItem value="Active">Active</MenuItem>
-                      <MenuItem value="Inactive">Inactive</MenuItem>
+                      <MenuItem value="Active">Activos</MenuItem>
+                      <MenuItem value="Inactive">Inactivos</MenuItem>
                     </Select>                    
                   </FormControl>
                 </TableCell>
-                <TableCell align="right">Update</TableCell>
-                <TableCell align="right">Delete</TableCell>
+                <TableCell align="right">Actualizar</TableCell>
+                {/* <TableCell align="right">Borrar</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -158,18 +158,31 @@ export default function DenseTable() {
                   <TableCell align="right">{row.category.name}</TableCell>
                   <TableCell align="right">{row.stock}</TableCell>
                   <TableCell align="right">${row.price}{` / `}${row.priceSpecial}</TableCell>
-                  <TableCell align="right">{row.state}</TableCell>
+                  <TableCell align="right">
+                    {
+                      row.state.toLowerCase()==='active' ? "Activo" : null
+                    }
+                    {
+                      row.state.toLowerCase()==='a' ? "Activo" : null
+                    }
+                    {
+                      row.state.toLowerCase()==='inactive' ? "Inactivo" : null
+                    }
+                    {
+                      row.state.toLowerCase()==='i' ? "Inactivo" : null
+                    }
+                  </TableCell>
                   <TableCell align="right">
                     <CreateProduct articulo={row} stateC={state} />
                   </TableCell>
-                  <TableCell align="right">
+                  {/* <TableCell align="right">
                     <ButtonMUI
                       variant="outlined"
                       onClick={() => clickDelete(row.id)}
                     >
                       Delete
                     </ButtonMUI>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

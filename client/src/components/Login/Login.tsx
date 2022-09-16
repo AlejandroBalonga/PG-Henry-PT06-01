@@ -63,6 +63,20 @@ export default function Signup() {
               placeholder="Ingrese su Correo"
             />
 
+            <Input4
+              type="password"
+              name="password"
+              onChange={(e) => handleChange(e)}
+              placeholder="Ingrese su contraseña"
+            />
+            <Recuerdo >
+            <a href="login/checkmail/enviochangepassword">
+                ¿Olvidaste tu contraseña?
+              </a>
+            {/*   ¿Olvidaste tu contraseña? */}
+              
+              </Recuerdo>
+
             <Div1>
               <Input4
                 type={showPwd2 ? "text" : "password"}
@@ -86,6 +100,7 @@ export default function Signup() {
                 ¿Olvidaste tu contraseña?
               </a>
             </Recuerdo>
+
 
             <Button type="submit">Iniciar sesión</Button>
             <O> O continuar con</O>

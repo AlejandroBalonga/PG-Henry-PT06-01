@@ -5,11 +5,12 @@ import {
   GET_ARTICULOS,
   GET_DETAIL_PRODUCT,
   GET_CATEGORIES,
+  GET_CATEGORIESBO,
   GET_USERS,
   DELETE_CATEGORY,
   DELETE_USER,
   GET_TOTALARTICULOS,
-  GET_TOTALCATEGORIAS,
+  GET_TOTALCATEGORIASBO,
   GET_TOTALUSERS,
   SET_DASHBOARDMENU,
   DELETE_PRODUCT,
@@ -140,6 +141,7 @@ export interface paramsUser {
   order: string;
   direction: string;
   filter: string
+  userId: number;
 }
 
 export interface paramsCatBO {
@@ -480,7 +482,8 @@ export function getUsersBO({
   name,
   order,
   direction,
-  filter
+  filter,
+  userId
 }: paramsUser) {
   return async function (dispatch: Dispatch) {
     try {
@@ -493,7 +496,8 @@ export function getUsersBO({
             name: name,
             order: order,
             direction: direction,
-            filter:filter
+            filter: filter,
+            id: userId
           },
         }
       );
@@ -664,8 +668,8 @@ export function getCategoriasBO({
       // console.log(json.data[1]);
 
       return [
-        dispatch({ type: GET_CATEGORIES, payload: json.data[1] }),
-        dispatch({ type: GET_TOTALCATEGORIAS, payload: json.data[0] }),
+        dispatch({ type: GET_CATEGORIESBO, payload: json.data[1] }),
+        dispatch({ type: GET_TOTALCATEGORIASBO, payload: json.data[0] }),
       ];
       //
     } catch (error) {

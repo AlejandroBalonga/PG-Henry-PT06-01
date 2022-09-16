@@ -15,6 +15,7 @@ import backofficeRoutesUser from "./backoffice/User";
 import backofficeRoutesCategory from "./backoffice/Category";
 import backofficeRoutesProduct from "./backoffice/Product";
 import backofficeRoutesOrders from "./backoffice/Orders";
+import reviewsRouter from './reviews';
 
 
 const router = Router();
@@ -28,6 +29,7 @@ router.use('/auth', authRouter)
 router.use('/prueba', pruebaRoutes)
 router.use('/mercadopago', mercadoPagoRoutes)
 router.use('/mail', accountRoutes)
+router.use('/review', reviewsRouter)
 
 router.use("/backoffice/user", backofficeRoutesUser);
 router.use("/backoffice/category", backofficeRoutesCategory);

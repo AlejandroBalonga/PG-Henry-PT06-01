@@ -25,11 +25,20 @@ import { User, postUserBO, getUsersBO } from "../../../actions";
 
 import FormHelperText from "@mui/material/FormHelperText";
 
+import Box from "@mui/material/Box";
+import Input from "@mui/material/Input";
+import FilledInput from "@mui/material/FilledInput";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
 
 export interface CardUserProps {
   user: User;
   stateC: any;
 }
+
 
 export default function FormDialog({
   user = {
@@ -45,18 +54,19 @@ export default function FormDialog({
 }: CardUserProps) {
   const dispatch = useDispatch<any>();
   const [input, setInput] = useState({
-    id: user.id||0,
-    name: user.name||'',
-    surname: user.surname||'',
-    email: user.email||'',
-    password: '',
-    state: user.state||'',
-    role: user.role||'',
+    id: user.id || 0,
+    name: user.name || "",
+    surname: user.surname || "",
+    email: user.email || "",
+    password: "",
+    state: user.state || "",
+    role: user.role || "",
     errors: null,
+    showPassword:false,
   });
 
   const token = useSelector((state: ReduxState) => state.token);
-  let categories = useSelector((state: ReduxState) => state.categorias);
+  const userprop = useSelector((state: ReduxState) => state.user);
 
   function handlechange(e) {
     setInput({
@@ -121,17 +131,47 @@ export default function FormDialog({
       await dispatch(postUserBO(token, input));
       await dispatch(
         getUsersBO({
-          page: stateC.page,
+          page: 1,
           pageSize: 12,
           name: "",
           order: "id",
           direction: "desc",
-          filter: null
+          filter: null,
+          userId: userprop.role ==='CLIENT'? userprop.id : null,
         })
       );
+      if (input.id<=0) {
+        setInput({
+          id: 0,
+          name: "",
+          surname: "",
+          email: "",
+          password: "",
+          state: "",
+          role: "",
+          errors: null,
+          showPassword: false,
+        });
+      }
+      
       handleClose();
     }
   }
+
+  
+
+  const handleClickShowPassword = () => {
+    setInput({
+      ...input,
+      showPassword: !input.showPassword,
+    });
+  };
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
 
   const [open, setOpen] = React.useState(false);
 
@@ -156,10 +196,12 @@ export default function FormDialog({
         fullWidth
         onClick={handleClickOpen}
       >
-        {user.id ? "Update" : "Create"}
+        {user.id ? "Actualizar" : "Crear"}
       </Button>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>New Product</DialogTitle>
+        <DialogTitle>
+          {user.id ? "Actualizar Usuario" : "Nuevo Usuario"}
+        </DialogTitle>
         <DialogContent>
           <TextField
             {...input.errors?.name?.action}
@@ -167,7 +209,7 @@ export default function FormDialog({
             margin="dense"
             id="name"
             name="name"
-            label="Name"
+            label="Nombre"
             type="text"
             fullWidth
             value={input.name}
@@ -183,7 +225,7 @@ export default function FormDialog({
             margin="dense"
             id="surname"
             name="surname"
-            label="Surname"
+            label="Nombre de usuario"
             type="text"
             value={input.surname}
             fullWidth
@@ -197,7 +239,7 @@ export default function FormDialog({
             margin="dense"
             id="email"
             name="email"
-            label="Email"
+            label="Correo"
             type="text"
             value={input.email}
             fullWidth
@@ -206,44 +248,79 @@ export default function FormDialog({
             helperText={input.errors?.email?.message}
           />
 
-          <TextField
+          {/* <TextField
             {...input.errors?.password?.action}
+            type={input.showPassword ? "text" : "password"}
             autoFocus
             margin="dense"
             id="password"
             name="password"
-            label="Password"
+            label="Contraseña"
             value={input.password}
-            type="password"
             fullWidth
             variant="standard"
             onChange={(e) => handlechange(e)}
             helperText={input.errors?.password?.message}
-          />
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                >
+                  {input.showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+          /> */}
+          <FormControl fullWidth sx={{ m: 1 }}>
+            <OutlinedInput
+              id="filled-adornment-password"
+              type={input.showPassword ? "text" : "password"}
+              value={input.password}
+              name="password"
+              onChange={(e) => handlechange(e)}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {input.showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
 
           <FormControl
             sx={{ m: 1, width: "100%" }}
             size="small"
             {...input.errors?.state?.action}
           >
-            <InputLabel id="state">State</InputLabel>
+            <InputLabel id="state">Estado</InputLabel>
             <Select
+              {...(userprop.role === "CLIENT" ? { disabled: true } : null)}
               labelId="state"
               id="state"
               name="state"
               value={input.state}
-              label="state"
+              label="Estado"
               onChange={handlechange}
             >
               <MenuItem value="">
-                <em>None</em>
+                <em>Seleccionar....</em>
               </MenuItem>
-              <MenuItem value="ACTIVE">ACTIVE</MenuItem>
-              <MenuItem value="BLOCKED">BLOCKED</MenuItem>
-              <MenuItem value="NOTCONFIRMED">NOTCONFIRMED</MenuItem>
+              <MenuItem value="ACTIVE">Activo</MenuItem>
+              <MenuItem value="BLOCKED">Bloqueado</MenuItem>
+              <MenuItem value="NOTCONFIRMED">No confirmado</MenuItem>
             </Select>
             <FormHelperText>{input.errors?.categoryId?.message}</FormHelperText>
           </FormControl>
+
           <FormControl
             sx={{ m: 1, width: "100%" }}
             size="small"
@@ -251,25 +328,26 @@ export default function FormDialog({
           >
             <InputLabel id="state">Rol</InputLabel>
             <Select
+              {...(userprop.role === "CLIENT" ? { disabled: true } : null)}
               labelId="role"
               id="role"
               name="role"
               value={input.role}
-              label="Role"
+              label="Rol"
               onChange={handlechange}
             >
               <MenuItem value="">
                 <em>None</em>
               </MenuItem>
-              <MenuItem value="ADMIN">ADMIN</MenuItem>
-              <MenuItem value="CLIENT">CLIENT</MenuItem>
+              <MenuItem value="ADMIN">Administrador</MenuItem>
+              <MenuItem value="CLIENT">Cliente</MenuItem>
             </Select>
             <FormHelperText>{input.errors?.role?.message}</FormHelperText>
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Save</Button>
+          <Button onClick={handleClose}>Cancelar</Button>
+          <Button onClick={handleSubmit}>Salvar</Button>
         </DialogActions>
       </Dialog>
     </div>

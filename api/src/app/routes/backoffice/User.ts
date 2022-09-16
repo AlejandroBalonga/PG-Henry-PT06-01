@@ -115,6 +115,7 @@ userRoutes.get("/", async (req, res) => {
     order = "id",
     direction = "desc",
     filter,
+    id
   } = req.query;
 
   const pageNumber = Number(page);
@@ -171,6 +172,8 @@ userRoutes.get("/", async (req, res) => {
       };
     }
   }
+
+  if (id) { where.id = Number(id); }
 
   const searchuser = await prisma.user.findMany({
     skip: (pageNumber - 1) * pageSizeNumber,

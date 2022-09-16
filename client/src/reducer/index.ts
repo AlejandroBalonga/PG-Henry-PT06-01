@@ -2,12 +2,14 @@ import {
   SET_ERROR,
   GET_ARTICULOS,
   GET_CATEGORIES,
+  GET_CATEGORIESBO,
   GET_USERS,
   SET_DASHBOARDMENU,
   GET_TOTALARTICULOS,
   GET_TOTALORDERS,
   GET_TOTALUSERS,
   GET_TOTALCATEGORIAS,
+  GET_TOTALCATEGORIASBO,
   DELETE_PRODUCT,
   DELETE_CATEGORY,
   DELETE_USER,
@@ -36,6 +38,7 @@ export interface ReduxState {
   articulos: Articulo[];
   articulosbo: ArticuloBO[];
   categorias: Category[];
+  categoriasbo: Category[];
   detailsProduct: Articulo;
   page: number;
   pageSize: number;
@@ -43,6 +46,7 @@ export interface ReduxState {
   totalUser: number;
   totalOrders: number;
   totalCategorias: number;
+  totalCategoriasbo: number;
   token: string;
   user?: { id: number; email: string; iat: number; role: string };
   error: string;
@@ -64,11 +68,13 @@ const initialState: ReduxState = {
   articulos: [],
   articulosbo: [],
   categorias: [],
+  categoriasbo: [],
   detailsProduct: undefined,
   page: 1,
   pageSize: 12,
   totalCount: 0,
   totalCategorias: 0,
+  totalCategoriasbo: 0,
   totalUser: 0,
   totalOrders: 0,
   token: "",
@@ -112,6 +118,16 @@ function rootReducer(state: ReduxState, action: actionI) {
       return {
         ...state,
         categorias: action.payload,
+      };
+    case GET_CATEGORIESBO:
+      return {
+        ...state,
+        categoriasbo: action.payload,
+      };
+    case GET_TOTALCATEGORIASBO:
+      return {
+        ...state,
+        totalCategoriasbo: action.payload,
       };
     case GET_ORDERS:
       return {

@@ -41,7 +41,7 @@ export default function DenseTable() {
     filter: null,
   });
   const dispatch = useDispatch<any>();
-  const allCategories = useSelector((state: ReduxState) => state.categorias).map(
+  const allCategories = useSelector((state: ReduxState) => state.categoriasbo).map(
     (item) => {
       return createData(
         item.id,
@@ -49,7 +49,7 @@ export default function DenseTable() {
       );
     }
   );
-  const totalCategorias = useSelector((state1: ReduxState) => state1.totalCategorias);
+  const totalCategorias = useSelector((state1: ReduxState) => state1.totalCategoriasbo);
 
   useEffect(() => {
     dispatch(
@@ -76,7 +76,7 @@ export default function DenseTable() {
     await dispatch(deleteCategoryBO(id));
     await dispatch(
       getCategoriasBO({
-        page: state.page,
+        page: 1,
         pageSize: 12,
         name: state.name,
         order: "id",
@@ -97,10 +97,10 @@ export default function DenseTable() {
         >
           <TableHead>
             <TableRow>
-              <TableCell>id</TableCell>
-              <TableCell align="right">Name</TableCell>
-              <TableCell align="right">Update</TableCell>
-              <TableCell align="right">Delete</TableCell>
+              <TableCell>ID</TableCell>
+              <TableCell align="right">Nombre</TableCell>
+              <TableCell align="right">Actualizar</TableCell>
+              {/* <TableCell align="right">Borrar</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -114,14 +114,14 @@ export default function DenseTable() {
                 <TableCell align="right">
                   <CreateCategory category={row} stateC={state} />
                 </TableCell>
-                <TableCell align="right">
+                {/* <TableCell align="right">
                   <ButtonMUI
                     variant="outlined"
                     onClick={() => clickDelete(row.id)}
                   >
                     Delete
                   </ButtonMUI>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>

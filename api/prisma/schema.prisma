@@ -19,6 +19,7 @@ model Product {
   categoryId   Int
   category     Category       @relation(fields: [categoryId], references: [id])
   order_detail Order_detail[]
+  review  Review[]
 }
 
 model Category {
@@ -39,15 +40,22 @@ enum UserState {
   NOTCONFIRMED
 }
 
+enum ReviewState {
+  PENDING
+  VIEWED
+  COMPLETED
+}
+
 model User {
-  id       Int     @id @default(autoincrement())
+  id       Int       @id @default(autoincrement())
   name     String
   surname  String
-  email    String  @unique @db.VarChar(255)
+  email    String    @unique @db.VarChar(255)
   password String?
-  state    UserState  @default(NOTCONFIRMED)
-  role     Role    @default(CLIENT)
+  state    UserState @default(NOTCONFIRMED)
+  role     Role      @default(CLIENT)
   orderU   Order[]
+  review  Review[]
 }
 
 model Order {
@@ -71,4 +79,14 @@ model Order_detail {
   quantity  Int
   product   Product @relation(fields: [productId], references: [id])
   order     Order   @relation(fields: [orderId], references: [id])
+}
+
+model Review {
+  @@id([userId, productId])
+  value Int?
+  state ReviewState @default(PENDING)
+  userId Int 
+  user User @relation(fields: [userId], references: [id])
+  productId Int
+  product Product @relation(fields: [productId], references: [id]) 
 }

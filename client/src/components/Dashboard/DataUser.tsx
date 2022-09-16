@@ -31,11 +31,13 @@ export default function DenseTable() {
     name: undefined,
     order: undefined,
     direction: undefined,
-    filter:null
+    filter: null,
+    userId: null
   });
 
   const allUser = useSelector((state: ReduxState) => state.users);
   const totalUser = useSelector((state1: ReduxState) => state1.totalUser);
+  const user = useSelector((state: ReduxState) => state.user);
 
   const dispatch = useDispatch<any>();
 
@@ -46,12 +48,13 @@ export default function DenseTable() {
     });
     await dispatch(
       getUsersBO({
-        page: state.page,
+        page: 1,
         pageSize: 12,
         name: state.name,
         order: "id",
         direction: "desc",
         filter: [e.target.name] + "-" + e.target.value,
+        userId: user.role === "CLIENT" ? user.id : null,
       })
     );
   }
@@ -64,7 +67,8 @@ export default function DenseTable() {
         name: state.name,
         order: state.order,
         direction: state.direction,
-        filter: state.filter
+        filter: state.filter,
+        userId: user.role === "CLIENT" ? user.id : null,
       })
     );
   }, [
@@ -81,12 +85,13 @@ export default function DenseTable() {
     await dispatch(deleteUserBO(id));
     await dispatch(
       getUsersBO({
-        page: state.page,
+        page: 1,
         pageSize: 12,
         name: "",
         order: "id",
         direction: "desc",
-        filter:state.filter
+        filter: state.filter,
+        userId: user.role === "CLIENT" ? user.id : null,
       })
     );
   }
@@ -102,32 +107,32 @@ export default function DenseTable() {
           >
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell align="right">Surname</TableCell>
-                <TableCell align="right">Password</TableCell>
-                <TableCell align="right">Email</TableCell>
+                <TableCell>Nombre</TableCell>
+                <TableCell align="right">Nombre Usuario</TableCell>
+                <TableCell align="right">Contraseña</TableCell>
+                <TableCell align="right">Correo</TableCell>
                 <TableCell align="right">
                   <FormControl sx={{ m: 1, width: "100%" }} size="small">
-                    <InputLabel id="state">State</InputLabel>
+                    <InputLabel id="state">Estado</InputLabel>
                     <Select
-                      labelId="state"
-                      id="state"
-                      name="state"
-                      label="state"
-                      onChange={handlechangeFilter}
-                    >
+                        labelId="state"
+                        id="state"
+                        name="state"
+                        label="state"
+                        onChange={handlechangeFilter}
+                      >
                       <MenuItem value={null} selected>
-                        <em>All</em>
+                        <em>Todos</em>
                       </MenuItem>
-                      <MenuItem value="ACTIVE">ACTIVE</MenuItem>
-                      <MenuItem value="BLOCKED">BLOCKED</MenuItem>
-                      <MenuItem value="NOTCONFIRMED">NOTCONFIRMED</MenuItem>
+                      <MenuItem value="ACTIVE">Activo</MenuItem>
+                      <MenuItem value="BLOCKED">Bloqueado</MenuItem>
+                      <MenuItem value="NOTCONFIRMED">No Confirmado</MenuItem>
                     </Select>
                   </FormControl>
                 </TableCell>
                 <TableCell align="right">Rol</TableCell>
-                <TableCell align="right">Update</TableCell>
-                <TableCell align="right">Delete</TableCell>
+                <TableCell align="right">Actualizar</TableCell>
+                {/* <TableCell align="right">Delete</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -141,20 +146,35 @@ export default function DenseTable() {
                   <TableCell align="right">************</TableCell>
                   <TableCell align="right">{row.email}</TableCell>
                   <TableCell align="right">
-                    {row.state ? "Active" : "Inactive"}
+                    {
+                      row.state.toLowerCase()==='active' ? "Activo" : null
+                    }
+                    {
+                      row.state.toLowerCase()==='blocked' ? "Bloqueado" : null
+                    }
+                    {
+                      row.state.toLowerCase()==='notconfirmed' ? "No Confirmado":null
+                    }
                   </TableCell>
-                  <TableCell align="right">{row.role}</TableCell>
+                  <TableCell align="right">
+                    {
+                      row.role.toLowerCase()==='admin' ? "Administrador" : null
+                    }
+                    {
+                      row.role.toLowerCase()==='client' ? "Cliente" : null
+                    }
+                  </TableCell>
                   <TableCell align="right">
                     <CreateUser user={row} stateC={state} />
                   </TableCell>
-                  <TableCell align="right">
+                  {/* <TableCell align="right">
                     <ButtonMUI
                       variant="outlined"
                       onClick={() => clickDelete(row.id)}
                     >
                       Delete
                     </ButtonMUI>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

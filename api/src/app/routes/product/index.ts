@@ -6,76 +6,63 @@ import passport from "passport";
 
 const productRoutes = Router();
 
-productRoutes.post(
-  "/",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    const { id, name, brand, categoryId, stock, price, img, state } = req.body;
-    if (typeof name !== "string") {
-      res.status(400).json({ message: `the 'name' must be a string` });
-      return;
-    }
-    if (typeof brand !== "string") {
-      res.status(400).json({ message: `the 'brand' must be a string` });
-      return;
-    }
-    if (typeof categoryId !== "number" || categoryId < 1) {
-      res
-        .status(400)
-        .json({ message: `the 'categoryId' must be a number > 0` });
-      return;
-    }
-    if (typeof stock !== "number" || categoryId < 1) {
-      res.status(400).json({ message: `the 'stock' must be a number > 0` });
-      return;
-    }
-    if (typeof price !== "number" || categoryId < 1) {
-      res.status(400).json({ message: `the 'price' must be a number > 0` });
-      return;
-    }
-    if (typeof img !== "string") {
-      res.status(400).json({ message: `the 'img' must be a string` });
-      return;
-    }
-    if (typeof state !== "string") {
-      res.status(400).json({ message: `the 'state' must be a string` });
-      return;
-    }
-
-    const newProduct = await prisma.product.upsert({
-      where: { id: id },
-      update: {
-        name: name,
-        brand: brand,
-        categoryId: categoryId,
-        stock: stock,
-        price: price,
-        img: img,
-        state: state,
-      },
-      create: {
-        name: name,
-        brand: brand,
-        categoryId: categoryId,
-        stock: stock,
-        price: price,
-        img: img,
-        state: state,
-      },
-    });
-    res.status(200).send(newProduct);
+productRoutes.post("/", passport.authenticate("jwt", { session: false }), async (req, res) => {
+  const { id, name, brand, categoryId, stock, price, img, state } = req.body;
+  if (typeof name !== "string") {
+    res.status(400).json({ message: `the 'name' must be a string` });
+    return;
   }
-);
+  if (typeof brand !== "string") {
+    res.status(400).json({ message: `the 'brand' must be a string` });
+    return;
+  }
+  if (typeof categoryId !== "number" || categoryId < 1) {
+    res.status(400).json({ message: `the 'categoryId' must be a number > 0` });
+    return;
+  }
+  if (typeof stock !== "number" || categoryId < 1) {
+    res.status(400).json({ message: `the 'stock' must be a number > 0` });
+    return;
+  }
+  if (typeof price !== "number" || categoryId < 1) {
+    res.status(400).json({ message: `the 'price' must be a number > 0` });
+    return;
+  }
+  if (typeof img !== "string") {
+    res.status(400).json({ message: `the 'img' must be a string` });
+    return;
+  }
+  if (typeof state !== "string") {
+    res.status(400).json({ message: `the 'state' must be a string` });
+    return;
+  }
+
+  const newProduct = await prisma.product.upsert({
+    where: { id: id },
+    update: {
+      name: name,
+      brand: brand,
+      categoryId: categoryId,
+      stock: stock,
+      price: price,
+      img: img,
+      state: state,
+    },
+    create: {
+      name: name,
+      brand: brand,
+      categoryId: categoryId,
+      stock: stock,
+      price: price,
+      img: img,
+      state: state,
+    },
+  });
+  res.status(200).send(newProduct);
+});
 
 productRoutes.get("/", async (req, res) => {
-  let {
-    page = 1,
-    pageSize = 12,
-    name,
-    order = "name",
-    direction = "asc",
-    categoryId,
-  } = req.query;
+  let { page = 1, pageSize = 12, name, order = "name", direction = "asc", categoryId } = req.query;
 
   const pageNumber = Number(page);
   const pageSizeNumber = Number(pageSize);
@@ -92,30 +79,18 @@ productRoutes.get("/", async (req, res) => {
     res.status(400).json({ message: `the 'name' must be a string` });
     return;
   }
-  if (
-    filterCategoryId &&
-    (typeof filterCategoryId !== "number" || filterCategoryId < 1)
-  ) {
+  if (filterCategoryId && (typeof filterCategoryId !== "number" || filterCategoryId < 1)) {
     res.status(400).json({ message: `the 'CategoryId' must be a number > 0` });
     return;
   }
-  if (
-    order !== "id" &&
-    order !== "name" &&
-    order !== "brand" &&
-    order !== "stock" &&
-    order !== "price" &&
-    order !== "state"
-  ) {
+  if (order !== "id" && order !== "name" && order !== "brand" && order !== "stock" && order !== "price" && order !== "state") {
     res.status(400).json({
       message: `the 'order' must be 'id', 'name', 'brand', 'stock', 'price' or 'state'`,
     });
     return;
   }
   if (direction !== "asc" && direction !== "desc") {
-    res
-      .status(400)
-      .json({ message: `the 'direction' must be 'asc' or 'desc'` });
+    res.status(400).json({ message: `the 'direction' must be 'asc' or 'desc'` });
     return;
   }
 
@@ -143,6 +118,28 @@ productRoutes.get("/", async (req, res) => {
   res.status(200).json([totalCuantity, searchproducts]);
 });
 
+productRoutes.get("/suggestions", async (req, res) => {
+  let { prefix } = req.query;
+  if (typeof prefix !== "string") {
+    return res.status(400).send("the prefix must be a string");
+  }
+  const suggestions = await prisma.product.findMany({
+    select: {
+      name: true,
+    },
+    where: {
+      name: {
+        contains: prefix,
+        mode: "insensitive",
+      },
+    },
+    orderBy: { name: "asc" },
+    take: 10,
+  });
+
+  res.status(200).json(suggestions.map((s) => s.name));
+});
+
 productRoutes.get("/:id", async (req, res) => {
   //console.log("estoy aqui", req.params.id)
   const productId = Number(req.params.id);
@@ -152,9 +149,7 @@ productRoutes.get("/:id", async (req, res) => {
     include: { category: true },
   });
 
-  productUnique
-    ? res.status(200).send(productUnique)
-    : res.status(404).send("no existe id buscado");
+  productUnique ? res.status(200).send(productUnique) : res.status(404).send("no existe id buscado");
 });
 
 productRoutes.put("/:id", async (req, res) => {

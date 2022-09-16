@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Product" ADD COLUMN     "priceSpecial" DOUBLE PRECISION NOT NULL DEFAULT 0;

@@ -46,10 +46,10 @@ export default function Home() {
   }, [dispatch, state.page, state.pageSize, state.name, state.order, state.direction, state.categoryId]);
 
   return (
-    <div>
+    <HomeContainer>
       <NavBar />
       <Carousel />
-      <HomeContainer>
+      <ProductBar>
         <SideBar homeState={state} filterOreder={(FOState) => setState({ ...state, page: 1, ...FOState })} />
         {/* <SearchBar onSearch={(search) => setState({ ...state, page: 1, name: search })} />
         <TopMenu onClickOpcion={(categoryid) => setState({ ...state, page: 1, categoryId: categoryid })} />
@@ -62,20 +62,20 @@ export default function Home() {
           {allProducts.map((art) => (
             <CardProduct key={art.id} articulo={art} />
           ))}
-          {totalCount > state.pageSize ? (
-            <Paginado onPageChange={(page) => setState({ ...state, page })} totalCount={totalCount} pageSize={state.pageSize} />
-          ) : (
-            ""
-          )}
         </CardsProducts>
-      </HomeContainer>
-    </div>
+      </ProductBar>
+      {totalCount > state.pageSize ? (
+        <Paginado onPageChange={(page) => setState({ ...state, page })} totalCount={totalCount} pageSize={state.pageSize} />
+      ) : (
+        ""
+      )}
+    </HomeContainer>
   );
 }
 
 const HomeContainer = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   /* align-items: center; */
   /* justify-content: center; */
   /* overflow-x: hidden; */
@@ -89,9 +89,6 @@ const CardsProducts = styled.div`
   width: 100%;
 `;
 
-const Ordenamientos = styled.div`
-  margin: 1rem;
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: center;
+const ProductBar = styled.div`
+  display: flex;
 `;

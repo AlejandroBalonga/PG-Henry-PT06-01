@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { FiShoppingCart } from "react-icons/fi";
 import { Link, useLocation } from "react-router-dom";
 import Logo from "../../img/Logo.png";
+import LogoMobile from "../../img/Logo-mobile.png";
 import { clearState, getUserID } from "../../actions/index";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -10,6 +11,7 @@ import { ReduxState } from "../../reducer";
 import { useEffect } from "react";
 import { BsPerson, BsPersonX } from "react-icons/bs";
 import { RiHome2Line } from "react-icons/ri";
+import SearchBar from "../SearchBar/SearchBar";
 
 export default function NavBar() {
   const dispatch = useDispatch<any>();
@@ -34,9 +36,11 @@ export default function NavBar() {
     <NavBarContainer>
       <div>
         <Link to="/home">
-          <Img id="logo" src={Logo} alt="" />
+          <Img id="logo" height="140px" src={Logo} alt="" />
+          <ImgMobile id="logo-mobile" height="140px" src={LogoMobile} alt="" />
         </Link>
       </div>
+      <SearchBar />
       <ContainerButtons>
         <Encabezado>
           {user ? (
@@ -56,15 +60,15 @@ export default function NavBar() {
         )}
         {location.pathname !== "/admin" && user?.role === "ADMIN" && (
           <Link to="/admin">
-             <DivButtonsNavBar>
-            <ButtonLogin>Admin</ButtonLogin>
+            <DivButtonsNavBar>
+              <ButtonLogin>Admin</ButtonLogin>
             </DivButtonsNavBar>
           </Link>
         )}
         {user?.role === "CLIENT" ? (
           <Link to="/history">
             <DivButtonsNavBar>
-            <ButtonLogin>Mis compras</ButtonLogin>
+              <ButtonLogin>Mis compras</ButtonLogin>
             </DivButtonsNavBar>
           </Link>
         ) : null}
@@ -84,10 +88,10 @@ export default function NavBar() {
           </Link>
         )}
         <Link to="/ShoppingCart">
-          <Shop>
+          <DivButtonsNavBar>
             <Numerito>{productosCarrito?.length} </Numerito>
             <FiShoppingCart />
-          </Shop>
+          </DivButtonsNavBar>
         </Link>
       </ContainerButtons>
     </NavBarContainer>
@@ -95,13 +99,14 @@ export default function NavBar() {
 }
 
 const DivButtonsNavBar = styled.div`
-align-items:center;
-font-size: 1.5rem;
-justify-content: center;
-margin-left: 1rem;
-margin-right: 1px;
-margin-bottom: 25px;
-color: black;
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  justify-content: center;
+  margin-right: 1rem;
+  /* margin-right: 1px; */
+  /* margin-bottom: 25px; */
+  color: black;
 `;
 
 const NavBarContainer = styled.header`
@@ -109,41 +114,54 @@ const NavBarContainer = styled.header`
   position: fixed;
   top: 0;
   overflow-x: hidden;
-  display: inline-flex;
+  /* display: inline-flex; */
   flex-wrap: wrap;
-  /* justify-content: center; */
+  justify-content: space-between;
   height: 4.6rem;
   width: 100vw;
-  /* display: flex; */
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
+  display: flex;
+  /* justify-content: space-between; */
+  /* align-items: center; */
+  /* padding: 0 20px; */
+  flex-wrap: nowrap;
   background-color: #ffffff;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   justify-items: center;
 
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
-    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
     rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   z-index: 1;
 `;
 
 const Img = styled.img`
-  width: 140px;
   height: 140px;
   margin-top: -45px;
   margin-left: 20px;
   z-index: 1;
+  object-fit:contain;
+  @media (max-width: 600px) {
+    display:none;
+  }
+`;
+
+const ImgMobile = styled.img`
+  height: 3rem;
+  margin: 0.8rem 0 0.8rem 20px;
+  object-fit:contain;
+  z-index: 1;
+  @media (min-width: 600px) {
+    display:none;
+  }
 `;
 
 const ContainerButtons = styled.div`
   display: inline-flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
-  margin-right: 1.5rem;
+  /* margin-right: 1.5rem; */
 `;
 
 const Encabezado = styled.div`
