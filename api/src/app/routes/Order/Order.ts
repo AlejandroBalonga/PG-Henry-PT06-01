@@ -54,6 +54,9 @@ backofficeRoutesOrder.get("/checkorder/:iduser", async (req, res) => {
   const userId = Number(req.params.iduser);
   const orderUnique = await prisma.order.findFirst({
     where: { userId: userId, status: "Abierto" },
+    include: {order_detail:{
+      include:{ product: true }}
+    }
   });
 
   orderUnique;

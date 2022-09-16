@@ -22,6 +22,7 @@ import {
   GET_TOTALORDERS,
   GET_DETAIL_USER,
   REGISTRO_EXITOSO,
+  GET_DETAIL_ORDERS,
 } from "./actiontype";
 
 const { REACT_APP_API_URL = "http://localhost:3001" } = process.env;
@@ -76,6 +77,7 @@ export interface OrderDetails {
   productId: number;
   price: number;
   quantity: number;
+  product: Articulo;
 }
 
 export interface ArticuloBO {
@@ -172,6 +174,30 @@ export interface params {
   categoryId: number;
 }
 
+export interface DetailOrder{
+  id: number;
+  amount: number;
+  date: Date;
+  status: String;
+  userId: number;
+  payment_id: number;
+  payment_status: String;
+  payment_type: String;
+  order_detail: OrderDetails[];
+  orderId: number;
+  productId: number;
+  price: number;
+  quantity: number;
+  name: String;
+  brand: String;
+  stock: number;
+  img: string;
+  state: String;
+  categoryId: number;
+  category: Category;
+  totalCount: number;
+}
+
 export function getOrders({
   page,
   pageSize,
@@ -200,6 +226,21 @@ export function getOrders({
         dispatch({ type: GET_TOTALORDERS, payload: json.data[0] }),
       ];
       //
+    } catch (error) {
+      return dispatch({ type: SET_ERROR, payload: "error" });
+    }
+  };
+}
+
+export function getDetailOrder(id: Number) {
+  console.log("id action--------------", id);
+  return async function (dispatch: Dispatch) {
+    try {
+      var json = await axios.get<DetailOrder>(
+        REACT_APP_API_URL + `/backoffice/order/checkorder/${id}`
+      );
+      console.log("json action---------------------", json);
+      return dispatch({ type: GET_DETAIL_ORDERS, payload: json.data });
     } catch (error) {
       return dispatch({ type: SET_ERROR, payload: "error" });
     }

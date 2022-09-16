@@ -24,7 +24,20 @@ export default function NavBar() {
 
   const user = useSelector((state: ReduxState) => state.user);
   const user2 = useSelector((state: ReduxState) => state.detailsUser);
+  let carritoDB = useSelector((state: ReduxState) => state.detailOrder);
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
+
+  let cantidadDB
+  if(carritoDB === undefined){
+    cantidadDB = 0
+  }else{
+    cantidadDB = Number(carritoDB?.order_detail)
+  }
+  let cantidadDeProductos = Number(productosCarrito?.length) + cantidadDB
+
+  console.log("localStorage", productosCarrito);
+  console.log("DB", carritoDB?.order_detail);
+  console.log("suma de dos", cantidadDeProductos);
 
   useEffect(() => {
     if (user) {
@@ -88,8 +101,11 @@ export default function NavBar() {
           </Link>
         )}
         <Link to="/ShoppingCart">
+
           <DivButtonsNavBar>
-            <Numerito>{productosCarrito?.length} </Numerito>
+
+          <Shop/>
+            <Numerito> {cantidadDeProductos} </Numerito>
             <FiShoppingCart />
           </DivButtonsNavBar>
         </Link>

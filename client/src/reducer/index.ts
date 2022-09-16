@@ -20,12 +20,13 @@ import {
   GET_GOOGLE,
   GET_DETAIL_USER,
   REGISTRO_EXITOSO,
+  GET_DETAIL_ORDERS,
 } from "../actions/actiontype";
 import {
   getLocalstorageState,
   setLocalstorageState,
 } from "../utils/localstorage";
-import { ArticuloBO, Articulo, Category, User, Orders, OrdersBO } from "../actions";
+import { ArticuloBO, Articulo, Category, User, Orders, OrdersBO, getDetailOrder, DetailOrder } from "../actions";
 import jwtdecode from "jwt-decode";
 import { string } from "yup";
 
@@ -52,6 +53,7 @@ export interface ReduxState {
   error: string;
   mensaje: string;
   useregistrado: boolean;
+  detailOrder: DetailOrder;
 }
 
 interface actionI {
@@ -82,6 +84,7 @@ const initialState: ReduxState = {
   error: null,
   mensaje: null,
   useregistrado: null,
+  detailOrder: undefined,
 };
 
 function rootReducer(state: ReduxState, action: actionI) {
@@ -135,6 +138,11 @@ function rootReducer(state: ReduxState, action: actionI) {
         orders: action.payload,
         ordersBO: action.payload,
       };
+    case GET_DETAIL_ORDERS:
+      return {
+        ...state,
+        detailOrder: action.payload,
+      }
     case GET_TOTALUSERS:
       return {
         ...state,

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Orders, Articulo, ArticuloCarrito } from "../../actions";
+import {
+  Orders,
+  Articulo,
+  ArticuloCarrito,
+  getDetailOrder,
+} from "../../actions";
 import NavBar from "../NavBar/NavBar";
 import { ReduxState } from "../../reducer";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -33,6 +38,7 @@ export default function ShoppingCart() {
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
   const user = useSelector((state: ReduxState) => state.user);
   const token1 = useSelector((state: ReduxState) => state.token);
+  const carritoDB = useSelector((state: ReduxState) => state.detailOrder);
   const dispatch = useDispatch<any>();
   const history = useNavigate();
 
@@ -50,6 +56,12 @@ export default function ShoppingCart() {
     precioTotal: detail?.price,
   };
 
+  useEffect(() => {
+    if (user) {
+      dispatch(getDetailOrder(user?.id));
+    }
+  }, []);
+
   let preciofinal = 0;
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
   //suma el precio total de los productos en carrito
@@ -58,9 +70,85 @@ export default function ShoppingCart() {
     0
   );
 
-  if (!productosCarrito) {
-    productosCarrito = [];
+  ///------- estamos trabajando aqui-------------------------------------------
+
+  let productosBdformateados = [];
+  if (user) {
+    //si hay un user logeado
+    if (carritoDB) {
+      //base Dato
+      //hay productos en la base de datos
+      for (let i = 0; i < carritoDB.order_detail.length; i++) {
+        productosBdformateados.push({
+          id: carritoDB.order_detail[i].product.id,
+          name: carritoDB.order_detail[i].product.name,
+          brand: carritoDB.order_detail[i].product.brand,
+          stock: carritoDB.order_detail[i].product.stock,
+          price: carritoDB.order_detail[i].product.price,
+          img: carritoDB.order_detail[i].product.img,
+          state: carritoDB.order_detail[i].product.state,
+          categoryId: carritoDB.order_detail[i].product.categoryId,
+          category: carritoDB.order_detail[i].product.brand, // esto esta mal
+          totalCount: carritoDB.order_detail[i].quantity,
+          precioTotal: carritoDB.amount,
+        });
+      }
+
+      if (productosCarrito) {
+        // LocalStorage
+        //hay ademas productos en el localStorage
+        //1 - NORMALIZO EL LS:
+        let carritoLSNormalizado = productosCarrito?.map((p) => {
+          return {
+            id: p.id,
+            name: p.name,
+            brand: p.brand,
+            stock: p.stock,
+            price: p.price,
+            img: p.img,
+            state: p.state,
+            categoryId: p.categoryId,
+            category: p.category.name, // esto esta mal
+            totalCount: p.totalCount,
+            precioTotal: p.amount,
+          };
+        });
+
+        let carritofinal = carritoLSNormalizado.concat(productosBdformateados);
+        //   let carritoSort = carritofinal.sort((a, b) => a.name.localeCompare(b.name))
+
+        //  for (let i = 0; i < carritoSort.length; i++) {
+        //      for (let j =1 ; j < carritoSort.length; j++){
+
+        //        if (carritoSort[i]?.id === carritoSort[j]?.id){
+        //          carritoSort[i].totalCount = carritoSort[i].totalCount + carritoSort[j].totalCount
+        //          carritoSort.splice(j,1)
+        //        }
+        //      }
+        //  }
+
+        //console.log(carritofinal);
+        //aca me fijo si hay alguno igual al otro y lo sumo en cantidad
+        //let carritoFinalFiltrado = carritofinal;
+
+        productosCarrito = carritofinal;
+        console.log("estas parado aqui-------", productosCarrito);
+        console.log(
+          "estas parado aqui con el nombre-------",
+          productosCarrito[0].name
+        );
+      } else {
+        productosCarrito = productosBdformateados;
+        console.log("dode estas parado--------", productosCarrito);
+      }
+    } else {
+      productosCarrito = [];
+    }
+  } else {
+    //si NO hay un user logeado
+    productosCarrito = JSON.parse(localStorage.getItem("carrito"));
   }
+  ////////////________________
 
   const [articulo, setArticulo] = useState([productosCarrito]);
 
@@ -93,7 +181,7 @@ export default function ShoppingCart() {
     return productosCarrito[i]?.totalCount <= 1 ? true : false;
   }
 
-  const carritoOrden = productosCarrito.map((p) => {
+  const carritoOrden = productosCarrito?.map((p) => {
     return {
       productId: p.id,
       price: p.price,
@@ -131,14 +219,14 @@ export default function ShoppingCart() {
         carritoOrden: ordenPorEnviar.carritoOrden,
       }
     );
-    console.log("actualizado: " + actualizado);
+    //console.log("actualizado: " + actualizado);
   }
 
   async function eliminarProductos(numeroOder) {
     const eliminado = await axios.delete(
       REACT_APP_API_URL + "/backoffice/order/orderProduct/" + numeroOder
     );
-    console.log("emininado: " + eliminado);
+    //console.log("emininado: " + eliminado);
   }
 
   async function sendOrderToDB(e) {
@@ -147,7 +235,7 @@ export default function ShoppingCart() {
 
     if (user?.id) {
       const checkOrderUser = await verificarSiHayOrderAbierta(); // verifica si hay orden abierta
-      console.log("checkOrderUser: " + checkOrderUser);
+      ////console.log("checkOrderUser: " + checkOrderUser);
 
       if (checkOrderUser === "sin ordenes abiertas") {
         var order = await axios.post(
@@ -158,11 +246,12 @@ export default function ShoppingCart() {
           }
         );
         history("/pagar?order=" + order.data.id);
-        //console.log("vamos avanzando", order);
+        ////console.log("vamos avanzando", order);
       } else {
         eliminarProductos(checkOrderUser);
         actualizarOrder(checkOrderUser, ordenPorEnviar);
         history("/pagar?order=" + checkOrderUser);
+        localStorage.removeItem("carrito");
       }
     } else {
       history("/login");
@@ -210,7 +299,8 @@ export default function ShoppingCart() {
                     </ButtonCantidad>
                   </ContainerCantidad>
                   <Unidad>${p.price?.toFixed(2)}</Unidad>
-                  <Unidad>${p.precioTotal?.toFixed(2)}</Unidad>
+                  <Unidad>${p.price?.toFixed(2)}</Unidad>{" "}
+                  {/*verificar esta liunea y colocar el importe total por la cantidad de articulos*/}
                   <ButtonDelete onClick={() => handlerDelete(p)}>
                     <AiOutlineDelete />
                   </ButtonDelete>
@@ -224,9 +314,9 @@ export default function ShoppingCart() {
             </DivResumen>
             <DivResumen>
               <ButtonCompra>
-                <Button>
-                  <Link to="/home">Seguir comprando</Link>
-                </Button>
+                <Link to="/home">
+                  <Button>Seguir comprando</Button>
+                </Link>
               </ButtonCompra>
               <ButtonCompra>
                 <Button
