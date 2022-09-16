@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Orders, Articulo, ArticuloCarrito } from "../../actions";
+import {
+  Orders,
+  Articulo,
+  ArticuloCarrito,
+  getDetailOrder,
+} from "../../actions";
 import NavBar from "../NavBar/NavBar";
 import { ReduxState } from "../../reducer";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -33,6 +38,7 @@ export default function ShoppingCart() {
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
   const user = useSelector((state: ReduxState) => state.user);
   const token1 = useSelector((state: ReduxState) => state.token);
+  const carritoDB = useSelector((state: ReduxState) => state.detailOrder);
   const dispatch = useDispatch<any>();
   const history = useNavigate();
 
@@ -50,6 +56,12 @@ export default function ShoppingCart() {
     precioTotal: detail?.price,
   };
 
+  useEffect(() => {
+    if (user) {
+      dispatch(getDetailOrder(user?.id));
+    }
+  }, []);
+
   let preciofinal = 0;
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
   //suma el precio total de los productos en carrito
@@ -57,10 +69,45 @@ export default function ShoppingCart() {
     (sum, b) => sum + Number(b.precioTotal),
     0
   );
+///------- estamos trabajando aqui------------------------
 
-  if (!productosCarrito) {
-    productosCarrito = [];
-  }
+
+  // if (carritoDB) {
+  //   if (productosCarrito) {
+  //     //hacemos lo que esta pensando el mejor jefe de todos los jefes
+
+  //     function juntarProductosBDconLS(productosBd) {
+  //       // pasarle los productos de la BD
+
+  //       const productosBdformateados = [];
+  //       console.log(
+  //         "CANTIDAD DE PRODUCTOS BD: ",
+  //         productosBd.order_detail.length
+  //       );
+  //       for (let i = 0; i < productosBd.order_detail.length; i++) {
+  //         productosBdformateados.push({
+  //           id: productosBd.order_detail[i].product.id,
+  //           name: productosBd.order_detail[i].product.name,
+  //           brand: productosBd.order_detail[i].product.brand,
+  //           stock: productosBd.order_detail[i].product.stock,
+  //           price: productosBd.order_detail[i].product.price,
+  //           img: productosBd.order_detail[i].product.img,
+  //           state: productosBd.order_detail[i].product.state,
+  //           categoryId: productosBd.order_detail[i].product.categoryId,
+  //           category: productosBd.order_detail[i].product.brand, // esto esta mal
+  //           totalCount: productosBd.quantity,
+  //           precioTotal: 0,
+  //         });
+  //       }
+  //       productosBdformateados.map((e) => console.log("eeeeee:", e));
+  //       let carritofinal = productosCarrito.concat(productosBdformateados);
+  //     }
+  //   } else {
+  //     productosCarrito = { ...carritoDB };
+  //   }
+  // } else {
+  //   productosCarrito = [];
+  // }
 
   const [articulo, setArticulo] = useState([productosCarrito]);
 
@@ -93,7 +140,7 @@ export default function ShoppingCart() {
     return productosCarrito[i]?.totalCount <= 1 ? true : false;
   }
 
-  const carritoOrden = productosCarrito.map((p) => {
+  const carritoOrden = productosCarrito?.map((p) => {
     return {
       productId: p.id,
       price: p.price,
@@ -131,14 +178,14 @@ export default function ShoppingCart() {
         carritoOrden: ordenPorEnviar.carritoOrden,
       }
     );
-    console.log("actualizado: " + actualizado);
+    //console.log("actualizado: " + actualizado);
   }
 
   async function eliminarProductos(numeroOder) {
     const eliminado = await axios.delete(
       REACT_APP_API_URL + "/backoffice/order/orderProduct/" + numeroOder
     );
-    console.log("emininado: " + eliminado);
+    //console.log("emininado: " + eliminado);
   }
 
   async function sendOrderToDB(e) {
@@ -147,7 +194,7 @@ export default function ShoppingCart() {
 
     if (user?.id) {
       const checkOrderUser = await verificarSiHayOrderAbierta(); // verifica si hay orden abierta
-      console.log("checkOrderUser: " + checkOrderUser);
+      ////console.log("checkOrderUser: " + checkOrderUser);
 
       if (checkOrderUser === "sin ordenes abiertas") {
         var order = await axios.post(
@@ -158,7 +205,7 @@ export default function ShoppingCart() {
           }
         );
         history("/pagar?order=" + order.data.id);
-        //console.log("vamos avanzando", order);
+        ////console.log("vamos avanzando", order);
       } else {
         eliminarProductos(checkOrderUser);
         actualizarOrder(checkOrderUser, ordenPorEnviar);
@@ -173,14 +220,14 @@ export default function ShoppingCart() {
     <>
       <NavBar />
       <Container>
-        {!productosCarrito ? (
+        {!carritoDB ? (
           <DivTitulo>
             <h3>No hay productos en el carrito</h3>
           </DivTitulo>
         ) : (
           <Column>
             <DivTitulo>
-              <h3>Mi CARRITO ({productosCarrito?.length})</h3>
+              <h3>Mi CARRITO ({carritoDB?.order_detail.length})</h3>
               <DivNombreColumnas>
                 <h5></h5>
                 <h5>Producto</h5>
@@ -191,11 +238,11 @@ export default function ShoppingCart() {
               </DivNombreColumnas>
             </DivTitulo>
 
-            {productosCarrito?.map((p, i) => (
+            {carritoDB?.order_detail?.map((p, i) => (
               <DivProduct key={i}>
                 <DivUnidad>
-                  <img src={p.img} alt="img" width="80px" />
-                  <h3>{p.name}</h3>
+                  <img src={p.product.img} alt="img" width="80px" />
+                  <h3>{p.product.name}</h3>
                   <ContainerCantidad>
                     <ButtonCantidad
                       value={i}
@@ -204,13 +251,14 @@ export default function ShoppingCart() {
                     >
                       -
                     </ButtonCantidad>
-                    <h4>{p.totalCount}</h4>
+                    <h4>{p.product.totalCount}</h4>
                     <ButtonCantidad onClick={() => handlerCantidadItem(p, "+")}>
                       +
                     </ButtonCantidad>
                   </ContainerCantidad>
-                  <Unidad>${p.price?.toFixed(2)}</Unidad>
-                  <Unidad>${p.precioTotal?.toFixed(2)}</Unidad>
+                  <Unidad>${p.product.price?.toFixed(2)}</Unidad>
+                  <Unidad>${p.product.price?.toFixed(2)}</Unidad>{" "}
+                  {/*verificar esta liunea y colocar el importe total por la cantidad de articulos*/}
                   <ButtonDelete onClick={() => handlerDelete(p)}>
                     <AiOutlineDelete />
                   </ButtonDelete>

@@ -4,25 +4,26 @@ import { Link, useNavigate } from "react-router-dom";
 import StartRating from "../StarRating/StarRating";
 import { Articulo, ArticuloCarrito } from "../../actions";
 import { BsCartPlus } from "react-icons/bs";
+import Swal from "sweetalert2";
 export interface CardProductProps {
   articulo: Articulo;
 }
 
 export default function CardProduct({ articulo }: CardProductProps) {
   const navigate = useNavigate();
-  const detalle : ArticuloCarrito =   {
+  const detalle: ArticuloCarrito = {
     id: articulo?.id,
-    name:articulo?.name ,
-    brand:articulo?.brand ,
-    stock:articulo?.stock ,
-    price:articulo?.price ,
-    img:articulo?.img ,
-    state:articulo?.state ,
-    categoryId:articulo?.categoryId ,
-    category:articulo?.category ,
+    name: articulo?.name,
+    brand: articulo?.brand,
+    stock: articulo?.stock,
+    price: articulo?.price,
+    img: articulo?.img,
+    state: articulo?.state,
+    categoryId: articulo?.categoryId,
+    category: articulo?.category,
     totalCount: 1,
     precioTotal: articulo?.price,
-   }
+  };
 
   let carrito = JSON.parse(localStorage.getItem("carrito"));
   if (!carrito) {
@@ -32,7 +33,6 @@ export default function CardProduct({ articulo }: CardProductProps) {
   //agrega item al carrito
   function handlerButtonCarrito(e, detalle) {
     e.preventDefault();
-    console.log(detalle)
     const index = carrito.findIndex((art) => art.id === detalle.id);
     if (index === -1) {
       //agrego
@@ -41,15 +41,50 @@ export default function CardProduct({ articulo }: CardProductProps) {
       localStorage.setItem("carrito", JSON.stringify(carrito));
       localStorage.setItem("item", JSON.stringify(""));
 
+      const Toast = Swal.mixin({
+        //alerta que muestra que se agrego producto
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener("mouseenter", Swal.stopTimer);
+          toast.addEventListener("mouseleave", Swal.resumeTimer);
+        },
+      });
+
+      Toast.fire({
+        icon: "success",
+        title: "Se agregó tu producto al carrito",
+      });
+
       navigate("/home");
     } else {
       //no agrego sumo.
-      //detalle.totalCount = detalle.totalCount + 1;
       let carritoAux = JSON.parse(localStorage.getItem("carrito"));
       carritoAux[index].totalCount = carritoAux[index].totalCount + 1;
       carritoAux[index].precioTotal =
         carritoAux[index].price * carritoAux[index].totalCount;
       localStorage.setItem("carrito", JSON.stringify(carritoAux));
+
+      const Toast = Swal.mixin({
+        //alerta que muestra que se agrego producto
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener("mouseenter", Swal.stopTimer);
+          toast.addEventListener("mouseleave", Swal.resumeTimer);
+        },
+      });
+
+      Toast.fire({
+        icon: "success",
+        title: "Se agregó tu producto al carrito",
+      });
 
       navigate("/home");
     }
