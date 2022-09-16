@@ -69,45 +69,86 @@ export default function ShoppingCart() {
     (sum, b) => sum + Number(b.precioTotal),
     0
   );
-///------- estamos trabajando aqui------------------------
 
+  ///------- estamos trabajando aqui-------------------------------------------
 
-  // if (carritoDB) {
-  //   if (productosCarrito) {
-  //     //hacemos lo que esta pensando el mejor jefe de todos los jefes
+  let productosBdformateados = [];
+  if (user) {
+    //si hay un user logeado
+    if (carritoDB) {
+      //base Dato
+      //hay productos en la base de datos
+      for (let i = 0; i < carritoDB.order_detail.length; i++) {
+        productosBdformateados.push({
+          id: carritoDB.order_detail[i].product.id,
+          name: carritoDB.order_detail[i].product.name,
+          brand: carritoDB.order_detail[i].product.brand,
+          stock: carritoDB.order_detail[i].product.stock,
+          price: carritoDB.order_detail[i].product.price,
+          img: carritoDB.order_detail[i].product.img,
+          state: carritoDB.order_detail[i].product.state,
+          categoryId: carritoDB.order_detail[i].product.categoryId,
+          category: carritoDB.order_detail[i].product.brand, // esto esta mal
+          totalCount: carritoDB.order_detail[i].quantity,
+          precioTotal: carritoDB.amount,
+        });
+      }
 
-  //     function juntarProductosBDconLS(productosBd) {
-  //       // pasarle los productos de la BD
+      if (productosCarrito) {
+        // LocalStorage
+        //hay ademas productos en el localStorage
+        //1 - NORMALIZO EL LS:
+        let carritoLSNormalizado = productosCarrito?.map((p) => {
+          return {
+            id: p.id,
+            name: p.name,
+            brand: p.brand,
+            stock: p.stock,
+            price: p.price,
+            img: p.img,
+            state: p.state,
+            categoryId: p.categoryId,
+            category: p.category.name, // esto esta mal
+            totalCount: p.totalCount,
+            precioTotal: p.amount,
+          };
+        });
 
-  //       const productosBdformateados = [];
-  //       console.log(
-  //         "CANTIDAD DE PRODUCTOS BD: ",
-  //         productosBd.order_detail.length
-  //       );
-  //       for (let i = 0; i < productosBd.order_detail.length; i++) {
-  //         productosBdformateados.push({
-  //           id: productosBd.order_detail[i].product.id,
-  //           name: productosBd.order_detail[i].product.name,
-  //           brand: productosBd.order_detail[i].product.brand,
-  //           stock: productosBd.order_detail[i].product.stock,
-  //           price: productosBd.order_detail[i].product.price,
-  //           img: productosBd.order_detail[i].product.img,
-  //           state: productosBd.order_detail[i].product.state,
-  //           categoryId: productosBd.order_detail[i].product.categoryId,
-  //           category: productosBd.order_detail[i].product.brand, // esto esta mal
-  //           totalCount: productosBd.quantity,
-  //           precioTotal: 0,
-  //         });
-  //       }
-  //       productosBdformateados.map((e) => console.log("eeeeee:", e));
-  //       let carritofinal = productosCarrito.concat(productosBdformateados);
-  //     }
-  //   } else {
-  //     productosCarrito = { ...carritoDB };
-  //   }
-  // } else {
-  //   productosCarrito = [];
-  // }
+        let carritofinal = carritoLSNormalizado.concat(productosBdformateados);
+        //   let carritoSort = carritofinal.sort((a, b) => a.name.localeCompare(b.name))
+
+        //  for (let i = 0; i < carritoSort.length; i++) {
+        //      for (let j =1 ; j < carritoSort.length; j++){
+
+        //        if (carritoSort[i]?.id === carritoSort[j]?.id){
+        //          carritoSort[i].totalCount = carritoSort[i].totalCount + carritoSort[j].totalCount
+        //          carritoSort.splice(j,1)
+        //        }
+        //      }
+        //  }
+
+        //console.log(carritofinal);
+        //aca me fijo si hay alguno igual al otro y lo sumo en cantidad
+        //let carritoFinalFiltrado = carritofinal;
+
+        productosCarrito = carritofinal;
+        console.log("estas parado aqui-------", productosCarrito);
+        console.log(
+          "estas parado aqui con el nombre-------",
+          productosCarrito[0].name
+        );
+      } else {
+        productosCarrito = productosBdformateados;
+        console.log("dode estas parado--------", productosCarrito);
+      }
+    } else {
+      productosCarrito = [];
+    }
+  } else {
+    //si NO hay un user logeado
+    productosCarrito = JSON.parse(localStorage.getItem("carrito"));
+  }
+  ////////////________________
 
   const [articulo, setArticulo] = useState([productosCarrito]);
 
@@ -210,6 +251,7 @@ export default function ShoppingCart() {
         eliminarProductos(checkOrderUser);
         actualizarOrder(checkOrderUser, ordenPorEnviar);
         history("/pagar?order=" + checkOrderUser);
+        localStorage.removeItem("carrito");
       }
     } else {
       history("/login");
@@ -220,14 +262,14 @@ export default function ShoppingCart() {
     <>
       <NavBar />
       <Container>
-        {!carritoDB ? (
+        {!productosCarrito ? (
           <DivTitulo>
             <h3>No hay productos en el carrito</h3>
           </DivTitulo>
         ) : (
           <Column>
             <DivTitulo>
-              <h3>Mi CARRITO ({carritoDB?.order_detail.length})</h3>
+              <h3>Mi CARRITO ({productosCarrito?.length})</h3>
               <DivNombreColumnas>
                 <h5></h5>
                 <h5>Producto</h5>
@@ -238,11 +280,11 @@ export default function ShoppingCart() {
               </DivNombreColumnas>
             </DivTitulo>
 
-            {carritoDB?.order_detail?.map((p, i) => (
+            {productosCarrito?.map((p, i) => (
               <DivProduct key={i}>
                 <DivUnidad>
-                  <img src={p.product.img} alt="img" width="80px" />
-                  <h3>{p.product.name}</h3>
+                  <img src={p.img} alt="img" width="80px" />
+                  <h3>{p.name}</h3>
                   <ContainerCantidad>
                     <ButtonCantidad
                       value={i}
@@ -251,13 +293,13 @@ export default function ShoppingCart() {
                     >
                       -
                     </ButtonCantidad>
-                    <h4>{p.product.totalCount}</h4>
+                    <h4>{p.totalCount}</h4>
                     <ButtonCantidad onClick={() => handlerCantidadItem(p, "+")}>
                       +
                     </ButtonCantidad>
                   </ContainerCantidad>
-                  <Unidad>${p.product.price?.toFixed(2)}</Unidad>
-                  <Unidad>${p.product.price?.toFixed(2)}</Unidad>{" "}
+                  <Unidad>${p.price?.toFixed(2)}</Unidad>
+                  <Unidad>${p.price?.toFixed(2)}</Unidad>{" "}
                   {/*verificar esta liunea y colocar el importe total por la cantidad de articulos*/}
                   <ButtonDelete onClick={() => handlerDelete(p)}>
                     <AiOutlineDelete />
@@ -272,9 +314,9 @@ export default function ShoppingCart() {
             </DivResumen>
             <DivResumen>
               <ButtonCompra>
-                <Button>
-                  <Link to="/home">Seguir comprando</Link>
-                </Button>
+                <Link to="/home">
+                  <Button>Seguir comprando</Button>
+                </Link>
               </ButtonCompra>
               <ButtonCompra>
                 <Button

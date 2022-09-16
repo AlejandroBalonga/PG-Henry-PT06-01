@@ -22,7 +22,20 @@ export default function NavBar() {
 
   const user = useSelector((state: ReduxState) => state.user);
   const user2 = useSelector((state: ReduxState) => state.detailsUser);
+  let carritoDB = useSelector((state: ReduxState) => state.detailOrder);
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
+
+  let cantidadDB
+  if(carritoDB === undefined){
+    cantidadDB = 0
+  }else{
+    cantidadDB = Number(carritoDB?.order_detail)
+  }
+  let cantidadDeProductos = Number(productosCarrito?.length) + cantidadDB
+
+  console.log("localStorage", productosCarrito);
+  console.log("DB", carritoDB?.order_detail);
+  console.log("suma de dos", cantidadDeProductos);
 
   useEffect(() => {
     if (user) {
@@ -56,15 +69,15 @@ export default function NavBar() {
         )}
         {location.pathname !== "/admin" && user?.role === "ADMIN" && (
           <Link to="/admin">
-             <DivButtonsNavBar>
-            <ButtonLogin>Admin</ButtonLogin>
+            <DivButtonsNavBar>
+              <ButtonLogin>Admin</ButtonLogin>
             </DivButtonsNavBar>
           </Link>
         )}
         {user?.role === "CLIENT" ? (
           <Link to="/history">
             <DivButtonsNavBar>
-            <ButtonLogin>Mis compras</ButtonLogin>
+              <ButtonLogin>Mis compras</ButtonLogin>
             </DivButtonsNavBar>
           </Link>
         ) : null}
@@ -85,7 +98,7 @@ export default function NavBar() {
         )}
         <Link to="/ShoppingCart">
           <Shop>
-            <Numerito>{productosCarrito?.length} </Numerito>
+            <Numerito> {cantidadDeProductos} </Numerito>
             <FiShoppingCart />
           </Shop>
         </Link>
@@ -95,13 +108,13 @@ export default function NavBar() {
 }
 
 const DivButtonsNavBar = styled.div`
-align-items:center;
-font-size: 1.5rem;
-justify-content: center;
-margin-left: 1rem;
-margin-right: 1px;
-margin-bottom: 25px;
-color: black;
+  align-items: center;
+  font-size: 1.5rem;
+  justify-content: center;
+  margin-left: 1rem;
+  margin-right: 1px;
+  margin-bottom: 25px;
+  color: black;
 `;
 
 const NavBarContainer = styled.header`
