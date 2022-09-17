@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import TopMenu from "../../components/TopMenu/TopMenu";
 import { useDispatch } from "react-redux";
-import { getArticulos, getCategorias } from "../../actions";
+import { getArticulos, getCategorias, getDetailOrder } from "../../actions";
 import { ReduxState } from "../../reducer";
 import Paginado from "../../components/Paginado/Paginado";
 import OrderName from "../../components/SideBar/OrderName";
@@ -29,9 +29,14 @@ export default function Home() {
 
   const totalCount = useSelector((state1: ReduxState) => state1.totalCount);
 
+  const user = useSelector((state: ReduxState) => state.user);
+
   const dispatch = useDispatch<any>();
 
   useEffect(() => {
+    if (user) {
+      dispatch(getDetailOrder(user?.id));
+    }
     dispatch(getCategorias());
     dispatch(
       getArticulos({
@@ -43,14 +48,27 @@ export default function Home() {
         categoryId: state.categoryId,
       })
     );
-  }, [dispatch, state.page, state.pageSize, state.name, state.order, state.direction, state.categoryId]);
+  }, [
+    dispatch,
+    state.page,
+    state.pageSize,
+    state.name,
+    state.order,
+    state.direction,
+    state.categoryId,
+  ]);
 
   return (
     <HomeContainer>
       <NavBar />
       <Carousel />
       <ProductBar>
-        <SideBar homeState={state} filterOreder={(FOState) => setState({ ...state, page: 1, ...FOState })} />
+        <SideBar
+          homeState={state}
+          filterOreder={(FOState) =>
+            setState({ ...state, page: 1, ...FOState })
+          }
+        />
         {/* <SearchBar onSearch={(search) => setState({ ...state, page: 1, name: search })} />
         <TopMenu onClickOpcion={(categoryid) => setState({ ...state, page: 1, categoryId: categoryid })} />
         <Ordenamientos>
@@ -65,7 +83,11 @@ export default function Home() {
         </CardsProducts>
       </ProductBar>
       {totalCount > state.pageSize ? (
-        <Paginado onPageChange={(page) => setState({ ...state, page })} totalCount={totalCount} pageSize={state.pageSize} />
+        <Paginado
+          onPageChange={(page) => setState({ ...state, page })}
+          totalCount={totalCount}
+          pageSize={state.pageSize}
+        />
       ) : (
         ""
       )}

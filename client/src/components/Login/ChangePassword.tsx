@@ -40,13 +40,6 @@ export default function ChangePassword() {
 
   })
 
-  
-
-   const [showPwd, setShowPwd] = useState(false)
-   const [showPwd2, setShowPwd2] = useState(false)
-
-
-
   function handleShowPwd(e) {
     // e.preventDefault()
     setShowPwd(!showPwd);
@@ -82,30 +75,30 @@ export default function ChangePassword() {
    
   }
 
-  return (
-    <Body>
-      <NavBar />
-      <Form onSubmit={/* (e) => handleSubmit(e) */ formik.handleSubmit }>
-        <Title>Restablecer su contraseña</Title>
-        <Div1>
-          <Input3
-            type={showPwd ? 'text' : 'password'}
-            name="password"
-            id="password"
-            placeholder="Ingresa tu nueva contraseña"
-    axios.post(`http://localhost:3001/auth/confirmnewpassword?token=${token}`,{
-      password: input.password,
-      passwordconfirm: input.passwordconfirm
+  // return (
+  //   <Body>
+  //     <NavBar />
+  //     <Form onSubmit={/* (e) => handleSubmit(e) */ formik.handleSubmit }>
+  //       <Title>Restablecer su contraseña</Title>
+  //       <Div1>
+  //         <Input3
+  //           type={showPwd ? 'text' : 'password'}
+  //           name="password"
+  //           id="password"
+  //           placeholder="Ingresa tu nueva contraseña"
+  //   axios.post(`http://localhost:3001/auth/confirmnewpassword?token=${token}`,{
+  //     password: input.password,
+  //     passwordconfirm: input.passwordconfirm
       
-    })
-    Swal.fire({
-        position: 'top-end',
-        icon: 'success',
-        title: 'Contraseña cambiada con éxito',
-        showConfirmButton: false,
-        timer: 2000
-        })
-  }
+  //   })
+  //   Swal.fire({
+  //       position: 'top-end',
+  //       icon: 'success',
+  //       title: 'Contraseña cambiada con éxito',
+  //       showConfirmButton: false,
+  //       timer: 2000
+  //       })
+  // }
 
   return (
     

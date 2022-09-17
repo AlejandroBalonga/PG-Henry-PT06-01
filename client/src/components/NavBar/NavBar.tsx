@@ -27,20 +27,23 @@ export default function NavBar() {
   let carritoDB = useSelector((state: ReduxState) => state.detailOrder);
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
 
-  let cantidadDB
-  if(carritoDB === undefined){
-    cantidadDB = 0
-  }else{
-    cantidadDB = Number(carritoDB?.order_detail)
+  let totalItemsCarrito;
+  if (user) {
+    if (!carritoDB?.order_detail) {
+      totalItemsCarrito = productosCarrito;
+    } else {
+      if (!productosCarrito) {
+        totalItemsCarrito = carritoDB?.order_detail;
+      } else {
+        totalItemsCarrito = productosCarrito?.concat(carritoDB?.order_detail);
+      }
+    }
+  } else {
+    totalItemsCarrito = productosCarrito;
   }
-  let cantidadDeProductos = Number(productosCarrito?.length) + cantidadDB
-
-  console.log("localStorage", productosCarrito);
-  console.log("DB", carritoDB?.order_detail);
-  console.log("suma de dos", cantidadDeProductos);
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       dispatch(getUserID(user?.id));
     }
   }, []);
@@ -101,11 +104,9 @@ export default function NavBar() {
           </Link>
         )}
         <Link to="/ShoppingCart">
-
           <DivButtonsNavBar>
-
-          <Shop/>
-            <Numerito> {cantidadDeProductos} </Numerito>
+            <Shop />
+            <Numerito> {totalItemsCarrito?.length} </Numerito>
             <FiShoppingCart />
           </DivButtonsNavBar>
         </Link>
@@ -146,7 +147,8 @@ const NavBarContainer = styled.header`
   border: 1px solid rgba(255, 255, 255, 0.3);
   justify-items: center;
 
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
     rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   z-index: 1;
 `;
@@ -156,19 +158,19 @@ const Img = styled.img`
   margin-top: -45px;
   margin-left: 20px;
   z-index: 1;
-  object-fit:contain;
+  object-fit: contain;
   @media (max-width: 600px) {
-    display:none;
+    display: none;
   }
 `;
 
 const ImgMobile = styled.img`
   height: 3rem;
   margin: 0.8rem 0 0.8rem 20px;
-  object-fit:contain;
+  object-fit: contain;
   z-index: 1;
   @media (min-width: 600px) {
-    display:none;
+    display: none;
   }
 `;
 

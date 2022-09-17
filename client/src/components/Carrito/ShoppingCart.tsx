@@ -70,11 +70,8 @@ export default function ShoppingCart() {
     0
   );
 
-  ///------- estamos trabajando aqui-------------------------------------------
-
   let productosBdformateados = [];
   if (user) {
-    //si hay un user logeado
     if (carritoDB) {
       //base Dato
       //hay productos en la base de datos
@@ -108,7 +105,7 @@ export default function ShoppingCart() {
             img: p.img,
             state: p.state,
             categoryId: p.categoryId,
-            category: p.category.name, // esto esta mal
+            //category: p.category.name, // esto esta mal
             totalCount: p.totalCount,
             precioTotal: p.amount,
           };
@@ -132,23 +129,15 @@ export default function ShoppingCart() {
         //let carritoFinalFiltrado = carritofinal;
 
         productosCarrito = carritofinal;
-        console.log("estas parado aqui-------", productosCarrito);
-        console.log(
-          "estas parado aqui con el nombre-------",
-          productosCarrito[0].name
-        );
       } else {
         productosCarrito = productosBdformateados;
-        console.log("dode estas parado--------", productosCarrito);
       }
     } else {
-      productosCarrito = [];
+      productosCarrito = JSON.parse(localStorage.getItem("carrito"));
     }
   } else {
-    //si NO hay un user logeado
     productosCarrito = JSON.parse(localStorage.getItem("carrito"));
   }
-  ////////////________________
 
   const [articulo, setArticulo] = useState([productosCarrito]);
 
@@ -168,12 +157,20 @@ export default function ShoppingCart() {
   }
 
   //elimina items del carrito LS
-  function handlerDelete(detalle) {
-    setArticulo(detalle);
-    let carritoDelete = JSON.parse(localStorage.getItem("carrito"));
-    let carritoIndex = carritoDelete.findIndex((el) => el.id === detalle.id);
-    carritoDelete.splice(carritoIndex, 1);
-    localStorage.setItem("carrito", JSON.stringify(carritoDelete));
+  function handlerDelete(checkOrderUser, detalle) {
+    if (!user) {
+      setArticulo(detalle);
+      let carritoDelete = productosCarrito;
+      let carritoIndex = carritoDelete.findIndex((el) => el.id === detalle.id);
+      carritoDelete.splice(carritoIndex, 1);
+      localStorage.setItem("carrito", JSON.stringify(carritoDelete));
+    } else {
+      let carritoDelete = productosCarrito;
+      let carritoIndex = carritoDelete.findIndex((el) => el.id === detalle.id);
+      carritoDelete.splice(carritoIndex, 1);
+      eliminarProductos(checkOrderUser);
+      actualizarOrder2(checkOrderUser, carritoDelete);
+    }
   }
 
   //deshabilita el boton de disminuir cantidad si es <= 1
@@ -222,6 +219,19 @@ export default function ShoppingCart() {
     //console.log("actualizado: " + actualizado);
   }
 
+  async function actualizarOrder2(checkOrderUser, carritoDelete) {
+    // ACTULIZAR TABLA ORDER
+    const actualizado = await axios.put(
+      REACT_APP_API_URL + "/backoffice/order/" + checkOrderUser,
+      {
+        amount: carritoDB.amount,
+        status: "abierto",
+        carritoOrden: carritoDelete,
+      }
+    );
+    //console.log("actualizado: " + actualizado);
+  }
+
   async function eliminarProductos(numeroOder) {
     const eliminado = await axios.delete(
       REACT_APP_API_URL + "/backoffice/order/orderProduct/" + numeroOder
@@ -250,7 +260,7 @@ export default function ShoppingCart() {
       } else {
         eliminarProductos(checkOrderUser);
         actualizarOrder(checkOrderUser, ordenPorEnviar);
-        history("/pagar?order=" + checkOrderUser);
+        //history("/pagar?order=" + checkOrderUser);
         localStorage.removeItem("carrito");
       }
     } else {
@@ -301,7 +311,7 @@ export default function ShoppingCart() {
                   <Unidad>${p.price?.toFixed(2)}</Unidad>
                   <Unidad>${p.price?.toFixed(2)}</Unidad>{" "}
                   {/*verificar esta liunea y colocar el importe total por la cantidad de articulos*/}
-                  <ButtonDelete onClick={() => handlerDelete(p)}>
+                  <ButtonDelete onClick={() => handlerDelete(carritoDB?.id, p)}>
                     <AiOutlineDelete />
                   </ButtonDelete>
                 </DivUnidad>
