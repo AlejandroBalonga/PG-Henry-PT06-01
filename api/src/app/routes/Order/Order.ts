@@ -1,7 +1,7 @@
 import { Router } from "express";
 import prisma from "../../../db";
 import nodemailer from "nodemailer";
-import ejs from "ejs";
+
 
 export interface ArticuloCarrito {
   id: number;
@@ -132,6 +132,8 @@ backofficeRoutesOrder.delete("/orderProduct/:id", async (req, res) => {
     res.send(`No se pudo eliminar el producto, ${error}`);
   }
 });
+
+
 
 /* Creating a transport object that will be used to send the email. */
 // var transport = {

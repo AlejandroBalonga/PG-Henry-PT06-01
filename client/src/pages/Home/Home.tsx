@@ -31,9 +31,9 @@ export default function Home() {
 
   const totalCount = useSelector((state1: ReduxState) => state1.totalCount);
 
-  const user = useSelector((state: ReduxState) => state.user);
+  // const user = useSelector((state: ReduxState) => state.user);
 
-  const carritoDB = useSelector((state: ReduxState) => state.detailOrder);
+  // const carritoDB = useSelector((state: ReduxState) => state.detailOrder);
 
   const token1 = useSelector((state: ReduxState) => state.token);
 
@@ -41,35 +41,35 @@ export default function Home() {
 
 
 
-  const carritoOrden = carritoDB?.order_detail?.map((p) => {
-    return {
-      productId: p.productId,
-      price: p.price,
-      quantity: p.quantity,
-    };
-  });
+  // const carritoOrden = carritoDB?.order_detail?.map((p) => {
+  //   return {
+  //     productId: p.productId,
+  //     price: p.price,
+  //     quantity: p.quantity,
+  //   };
+  // });
 
-  const ordenPorEnviar = {
-    amount: carritoDB?.amount,
-    userId: user?.id,
-    status: "Abierto",
-    carritoOrden: carritoOrden,
-  };
+  // const ordenPorEnviar = {
+  //   amount: carritoDB?.amount,
+  //   userId: user?.id,
+  //   status: "Abierto",
+  //   carritoOrden: carritoOrden,
+  // };
 
-  console.log("OrdenAbierta fuera", carritoDB?.id)
+  
   useEffect(() => {
 
-    if (user) {
+    // if (user) {
 
-      dispatch(getDetailOrder(user?.id)); // devuelve orden abierta de usuario. 
-      //si hay orden. 
-      if (carritoDB?.id !== undefined) {
-        eliminarProductos(carritoDB?.id);
-        actualizarOrder(carritoDB?.id, ordenPorEnviar)
-      } 
+    //   dispatch(getDetailOrder(user?.id)); // devuelve orden abierta de usuario. 
+    //   //si hay orden. 
+    //   if (carritoDB?.id !== undefined) {
+    //     eliminarProductos(carritoDB?.id);
+    //     actualizarOrder(carritoDB?.id, ordenPorEnviar)
+    //   } 
 
 
-    }
+    // }
     dispatch(getCategorias());
     dispatch(
       getArticulos({

@@ -29,30 +29,28 @@ export default function NavBar() {
 
   let totalItemsCarrito;
 
-  const [itemcarrito, setItemcarrito] = useState(0)
 
 
-  useEffect(() => {
-    if (user?.id) {
-      dispatch(getUserID(user?.id));
-    }
+  // if (user?.id) {
+  //   dispatch(getUserID(user?.id));
+  // }
 
-    if (user) {
-      if (!carritoDB?.order_detail) {
-        totalItemsCarrito = productosCarrito;
-      } else {
-        if (!productosCarrito) {
-          totalItemsCarrito = carritoDB?.order_detail;
-        } else {
-          totalItemsCarrito = productosCarrito?.concat(carritoDB?.order_detail);
-        }
-      }
-      setItemcarrito(totalItemsCarrito?.length)
-    } else {
+  if (user) {
+    if (!carritoDB?.order_detail) {
       totalItemsCarrito = productosCarrito;
-      setItemcarrito(totalItemsCarrito?.length)
+    } else {
+      if (!productosCarrito) {
+        totalItemsCarrito = carritoDB?.order_detail;
+      } else {
+        totalItemsCarrito = productosCarrito?.concat(carritoDB?.order_detail);
+      }
     }
-  }, []);
+
+  } else {
+    totalItemsCarrito = productosCarrito;
+   
+  }
+
 
   return (
     <NavBarContainer>
@@ -112,7 +110,7 @@ export default function NavBar() {
         <Link to="/ShoppingCart">
           <DivButtonsNavBar>
             <Shop />
-            <Numerito> {itemcarrito} </Numerito>
+            <Numerito> {totalItemsCarrito?.length} </Numerito>
             <FiShoppingCart />
           </DivButtonsNavBar>
         </Link>

@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Orders,
-  Articulo,
-  ArticuloCarrito,
-  getDetailOrder,
-} from "../../actions";
+import { ArticuloCarrito, getDetailOrder} from "../../actions";
 import NavBar from "../NavBar/NavBar";
 import { ReduxState } from "../../reducer";
 import { AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
-import {eliminarProductos, actualizarOrder, crearOrder} from "./Services";
+import {eliminarProductos, actualizarOrder, crearOrder, verificarSiHayOrderAbierta} from "./Services";
 
 import {
   Container,
@@ -31,17 +26,19 @@ import {
   ContainerCantidad,
   DivNombreColumnas,
 } from "./stylesCart";
-import { ButtonsWayToShop } from "./styles";
-import { ButtonCantidad, ButtonDelete } from "./stylesCart";
 
+import { ButtonCantidad, ButtonDelete } from "./stylesCart";
+import { useDispatch } from "react-redux";
 const { REACT_APP_API_URL = "http://localhost:3001" } = process.env;
+
+
 export default function ShoppingCart() {
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
   const user = useSelector((state: ReduxState) => state.user);
   const token1 = useSelector((state: ReduxState) => state.token);
   const carritoDB = useSelector((state: ReduxState) => state.detailOrder);
-  const dispatch = useDispatch<any>();
   const history = useNavigate();
+  const dispach = useDispatch<any>();
 
   let detalle: ArticuloCarrito = {
     id: detail?.id,
@@ -59,24 +56,22 @@ export default function ShoppingCart() {
 
   useEffect(() => {
     if (user) {
-      dispatch(getDetailOrder(user?.id));
-     
+      dispach(getDetailOrder(user?.id))   
     }
   }, []);
 
+ 
+
+
   let preciofinal = 0;
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
-  //suma el precio total de los productos en carrito
-  preciofinal = productosCarrito?.reduce(
-    (sum, b) => sum + Number(b.precioTotal),
-    0
-  );
+ 
 
   let productosBdformateados = [];
-  if (user) {
-    if (carritoDB) {
-      //base Dato
-      //hay productos en la base de datos
+  if (user) {  
+    
+    if (carritoDB) {   //hay productos en la base de datos // FORMATEO EN UN OBJETO      
+      
       for (let i = 0; i < carritoDB.order_detail.length; i++) {
         productosBdformateados.push({
           id: carritoDB.order_detail[i].product.id,
@@ -89,31 +84,21 @@ export default function ShoppingCart() {
           categoryId: carritoDB.order_detail[i].product.categoryId,
           category: carritoDB.order_detail[i].product.brand, // esto esta mal
           totalCount: carritoDB.order_detail[i].quantity,
-          precioTotal: carritoDB.amount,
+          precioTotal: carritoDB.order_detail[i].quantity * carritoDB.order_detail[i].product.price,
         });
       }
 
-      if (productosCarrito) {
-        // LocalStorage
-        //hay ademas productos en el localStorage
-        //1 - NORMALIZO EL LS:
-        let carritoLSNormalizado = productosCarrito?.map((p) => {
-          return {
-            id: p.id,
-            name: p.name,
-            brand: p.brand,
-            stock: p.stock,
-            price: p.price,
-            img: p.img,
-            state: p.state,
-            categoryId: p.categoryId,
-            //category: p.category.name, // esto esta mal
-            totalCount: p.totalCount,
-            precioTotal: p.amount,
-          };
-        });
+      //SETEO BASE DE DATOS FORMATEADO A "LS CARRITO 2"
+      localStorage.setItem('carrito2', JSON.stringify(productosBdformateados))
+      let carrito2 = JSON.parse(localStorage.getItem("carrito2"));
+      
+      //SI hay ademas productos en el localStorage agregados antes de loguearse 
+      if (productosCarrito) {      
+        let carritofinal = productosCarrito.concat(carrito2);
+        localStorage.setItem('CARRITOFINAL', JSON.stringify(carritofinal))
 
-        let carritofinal = carritoLSNormalizado.concat(productosBdformateados);
+        //ELMINIO DUPLICADOS Y SUMO CANTIDADES 
+
         //   let carritoSort = carritofinal.sort((a, b) => a.name.localeCompare(b.name))
 
         //  for (let i = 0; i < carritoSort.length; i++) {
@@ -125,29 +110,37 @@ export default function ShoppingCart() {
         //        }
         //      }
         //  }
-
-        //console.log(carritofinal);
-        //aca me fijo si hay alguno igual al otro y lo sumo en cantidad
-        //let carritoFinalFiltrado = carritofinal;
-
         productosCarrito = carritofinal;
-      } else {
-        productosCarrito = productosBdformateados;
+      } else { // SI NO HAY CARRITO
+        productosCarrito = carrito2;
+        localStorage.setItem('CARRITOFINAL', JSON.stringify(carrito2))
       }
-    } else {
+    } else { // LOGUEADO PERO SIN ORDENES ABIERTAS
       productosCarrito = JSON.parse(localStorage.getItem("carrito"));
     }
-  } else {
+  } else { // NO ESTA LOGUEADO 
     productosCarrito = JSON.parse(localStorage.getItem("carrito"));
   }
+
+  
+   //suma el precio total de los productos en carrito
+   preciofinal = productosCarrito?.reduce(
+    (sum, b) => sum + Number(b.precioTotal),
+    0
+  );
 
   const [articulo, setArticulo] = useState([productosCarrito]);
 
   //modifica la cantidad de items
   function handlerCantidadItem(detalle, signo: string) {
+    console.log(detalle);    
     setArticulo(detalle);
     const index = productosCarrito.findIndex((art) => art.id === detalle.id);
+    console.log(index);
+    
     let carritoAux = JSON.parse(localStorage.getItem("carrito"));
+    //let carritoAux = productosCarrito;
+    console.log("carritoAux: " + carritoAux[index].totalCount);    
     signo === "+"
       ? (carritoAux[index].totalCount = carritoAux[index].totalCount + 1)
       : signo === "-"
@@ -155,6 +148,9 @@ export default function ShoppingCart() {
       : (carritoAux[index].totalCount = carritoAux[index].totalCount);
     carritoAux[index].precioTotal =
       carritoAux[index].price * carritoAux[index].totalCount;
+    //productosCarrito = carritoAux;
+    console.log(productosCarrito);
+    
     localStorage.setItem("carrito", JSON.stringify(carritoAux));
   }
 
@@ -195,18 +191,7 @@ export default function ShoppingCart() {
     carritoOrden: carritoOrden,
   };
 
-  //verifica si hay orden abierta en BD
-  async function verificarSiHayOrderAbierta() {
-    const orderCheck = await axios.get(
-      REACT_APP_API_URL + "/backoffice/order/checkorder/" + user.id
-    );
 
-    if (orderCheck.data === "") {
-      return "sin ordenes abiertas";
-    } else {
-      return orderCheck.data.id;
-    }
-  }
 
  
 
@@ -225,34 +210,29 @@ export default function ShoppingCart() {
 
 
 
+  //BOTON FINALIZA COMPRA
   async function sendOrderToDB(e) {
-    //BOTON FINALIZA COMPRA
     e.preventDefault();
 
-    if (user?.id) {
-      const checkOrderUser = await verificarSiHayOrderAbierta(); // verifica si hay orden abierta
-      console.log("checkOrderUser: " + checkOrderUser);
-
-      if (checkOrderUser === "sin ordenes abiertas") {
-        // var order = await axios.post(
-        //   REACT_APP_API_URL + "/backoffice/order",
-        //   ordenPorEnviar,
-        //   {
-        //     headers: { authorization: `Bearer ${token1}` },
-        //   }
-        // );
+    console.log("aca");
+    if (user?.id) {  // si hay usuario logueado.
+      
+      const checkOrderUser = await verificarSiHayOrderAbierta(user.id); // verifica si hay orden abierta
+      console.log("checkOrderUser: " , checkOrderUser);
+      
+      if (checkOrderUser === "sin ordenes abiertas") { // no existe orden abierta para el usuario 
 
         var order = await crearOrder(ordenPorEnviar, token1);
         history("/pagar?order=" + order.data.id); 
         localStorage.removeItem("carrito");
-        console.log("vamos avanzando", order);
-      } else {
-        eliminarProductos(checkOrderUser);        
-        actualizarOrder(checkOrderUser, ordenPorEnviar);
+     
+      } else { // existe orden
+        eliminarProductos(checkOrderUser);    // elimina productos  
+        actualizarOrder(checkOrderUser, ordenPorEnviar); // actualiza los productos de la orden.
         history("/pagar?order=" + checkOrderUser);
         localStorage.removeItem("carrito");
       }
-    } else {
+    } else { // si no hay usuario logueado, voy a login. 
       history("/login");
     }
   }

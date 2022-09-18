@@ -197,7 +197,7 @@ console.log("quierosaberquetienes",carrito);
               {!datos ? (
                 <>
                   <ButtonCarrito>
-                    <Link to="ShoppingCart">
+                    <Link to="/ShoppingCart">
                       <Button>Seguir editando mi compra</Button>
                     </Link>
                   </ButtonCarrito>
