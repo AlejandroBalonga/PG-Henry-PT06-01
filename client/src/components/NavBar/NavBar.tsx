@@ -8,8 +8,8 @@ import { clearState, getUserID } from "../../actions/index";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { ReduxState } from "../../reducer";
-import { useEffect } from "react";
-import { BsPersonCheck, BsPersonDash } from "react-icons/bs";
+import { useEffect , useState } from "react";
+import { BsPerson, BsPersonX } from "react-icons/bs";
 import { RiHome2Line } from "react-icons/ri";
 import SearchBar from "../SearchBar/SearchBar";
 import { FaRegBell } from "react-icons/fa";
@@ -29,23 +29,29 @@ export default function NavBar() {
   let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
 
   let totalItemsCarrito;
-  if (user) {
-    if (!carritoDB?.order_detail) {
-      totalItemsCarrito = productosCarrito;
-    } else {
-      if (!productosCarrito) {
-        totalItemsCarrito = carritoDB?.order_detail;
-      } else {
-        totalItemsCarrito = productosCarrito?.concat(carritoDB?.order_detail);
-      }
-    }
-  } else {
-    totalItemsCarrito = productosCarrito;
-  }
+
+  const [itemcarrito, setItemcarrito] = useState(0)
+
 
   useEffect(() => {
     if (user?.id) {
       dispatch(getUserID(user?.id));
+    }
+
+    if (user) {
+      if (!carritoDB?.order_detail) {
+        totalItemsCarrito = productosCarrito;
+      } else {
+        if (!productosCarrito) {
+          totalItemsCarrito = carritoDB?.order_detail;
+        } else {
+          totalItemsCarrito = productosCarrito?.concat(carritoDB?.order_detail);
+        }
+      }
+      setItemcarrito(totalItemsCarrito?.length)
+    } else {
+      totalItemsCarrito = productosCarrito;
+      setItemcarrito(totalItemsCarrito?.length)
     }
   }, []);
 
@@ -120,7 +126,7 @@ export default function NavBar() {
         <Link to="/ShoppingCart">
           <DivButtonsNavBar>
             <Shop />
-            <Numerito> {totalItemsCarrito?.length} </Numerito>
+            <Numerito> {itemcarrito} </Numerito>
             <FiShoppingCart />
           </DivButtonsNavBar>
         </Link>

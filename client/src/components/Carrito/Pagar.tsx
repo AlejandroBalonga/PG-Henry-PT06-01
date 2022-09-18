@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { useLocation, useParams } from "react-router-dom";
-import { getUserID } from "../../actions";
+import { getDetailOrder, getUserID } from "../../actions";
 import {
   Container,
   Panel,
@@ -48,10 +48,14 @@ export default function Buy() {
   const search = useLocation().search;
   const order = new URLSearchParams(search).get("order");
   let userDetallado = useSelector((state: ReduxState) => state.detailsUser);
-  //console.log("use params: ", order);
-  console.log("holaaa", userDetallado);
+  const user = useSelector((state: ReduxState) => state.user);
+  const dispatch = useDispatch<any>();
 
-  //const carrito = JSON.parse(localStorage.getItem("carrito"));
+  useEffect(() => {
+    dispatch(getDetailOrder(user?.id));   
+  
+}, []);
+
 
   let carrito = [];
   if (carritoDB) {
@@ -88,21 +92,21 @@ console.log("quierosaberquetienes",carrito);
 
   const orderNro = order;
   const [datos, setDatos] = useState("");
-  const dispatch = useDispatch();
+ 
+//DESCOMENTAR PARA MERCADO PAGO BOTON
+  // useEffect(() => {
+  //   axios
+  //     .post("http://localhost:3001/mercadopago", {
+  //       carrito: JSON.stringify(items_ml),
+  //       order: orderNro,
+  //     })
 
-  useEffect(() => {
-    axios
-      .post("http://localhost:3001/mercadopago", {
-        carrito: JSON.stringify(items_ml),
-        order: orderNro,
-      })
-
-      .then((data) => {
-        setDatos(data.data.id);
-        console.info("Contenido de data:", data);
-      })
-      .catch((err) => console.error(err));
-  }, []);
+  //     .then((data) => {
+  //       setDatos(data.data.id);
+  //       console.info("Contenido de data:", data);
+  //     })
+  //     .catch((err) => console.error(err));
+  // }, []);
 
   // function handlerSubmit() {
   //     window.location.assign("https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=1191162786-887db42c-eb06-405d-b0f6-bb12389b2dbd")

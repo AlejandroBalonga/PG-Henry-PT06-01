@@ -11,6 +11,7 @@ import NavBar from "../NavBar/NavBar";
 import { ReduxState } from "../../reducer";
 import { AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
+import {eliminarProductos, actualizarOrder, crearOrder} from "./Services";
 
 import {
   Container,
@@ -59,6 +60,7 @@ export default function ShoppingCart() {
   useEffect(() => {
     if (user) {
       dispatch(getDetailOrder(user?.id));
+     
     }
   }, []);
 
@@ -206,18 +208,7 @@ export default function ShoppingCart() {
     }
   }
 
-  async function actualizarOrder(checkOrderUser, ordenPorEnviar) {
-    // ACTULIZAR TABLA ORDER
-    const actualizado = await axios.put(
-      REACT_APP_API_URL + "/backoffice/order/" + checkOrderUser,
-      {
-        amount: ordenPorEnviar.amount,
-        status: ordenPorEnviar.status,
-        carritoOrden: ordenPorEnviar.carritoOrden,
-      }
-    );
-    //console.log("actualizado: " + actualizado);
-  }
+ 
 
   async function actualizarOrder2(checkOrderUser, carritoDelete) {
     // ACTULIZAR TABLA ORDER
@@ -232,12 +223,7 @@ export default function ShoppingCart() {
     //console.log("actualizado: " + actualizado);
   }
 
-  async function eliminarProductos(numeroOder) {
-    const eliminado = await axios.delete(
-      REACT_APP_API_URL + "/backoffice/order/orderProduct/" + numeroOder
-    );
-    //console.log("emininado: " + eliminado);
-  }
+
 
   async function sendOrderToDB(e) {
     //BOTON FINALIZA COMPRA
@@ -245,22 +231,25 @@ export default function ShoppingCart() {
 
     if (user?.id) {
       const checkOrderUser = await verificarSiHayOrderAbierta(); // verifica si hay orden abierta
-      ////console.log("checkOrderUser: " + checkOrderUser);
+      console.log("checkOrderUser: " + checkOrderUser);
 
       if (checkOrderUser === "sin ordenes abiertas") {
-        var order = await axios.post(
-          REACT_APP_API_URL + "/backoffice/order",
-          ordenPorEnviar,
-          {
-            headers: { authorization: `Bearer ${token1}` },
-          }
-        );
-        history("/pagar?order=" + order.data.id);
-        ////console.log("vamos avanzando", order);
+        // var order = await axios.post(
+        //   REACT_APP_API_URL + "/backoffice/order",
+        //   ordenPorEnviar,
+        //   {
+        //     headers: { authorization: `Bearer ${token1}` },
+        //   }
+        // );
+
+        var order = await crearOrder(ordenPorEnviar, token1);
+        history("/pagar?order=" + order.data.id); 
+        localStorage.removeItem("carrito");
+        console.log("vamos avanzando", order);
       } else {
-        eliminarProductos(checkOrderUser);
+        eliminarProductos(checkOrderUser);        
         actualizarOrder(checkOrderUser, ordenPorEnviar);
-        //history("/pagar?order=" + checkOrderUser);
+        history("/pagar?order=" + checkOrderUser);
         localStorage.removeItem("carrito");
       }
     } else {
