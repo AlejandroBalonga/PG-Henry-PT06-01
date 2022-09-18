@@ -1,52 +1,33 @@
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams ,useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
 import NavBar from '../NavBar/NavBar';
 import { useState } from 'react';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import * as Yup from 'yup';
-import { useFormik } from "formik";
-import Swal from "sweetalert2";
-
+import swal from 'sweetalert2';
 
 export default function ChangePassword() {
   const [showPwd, setShowPwd] = useState(false);
   const [showPwd2, setShowPwd2] = useState(false);
+  const history = useNavigate();
 
-  //validamos con formik y Yup
-  const formik = useFormik({
-    initialValues : {
-      password: "",
-    passwordconfirm:"",
-    },
-    validationSchema: Yup.object({
-      password: Yup.string()
+  const validationSchema = Yup.object({
+    password: Yup.string()
       .required('Contraseña Requerida')
-      .min(6, 'debe contener al menos 6 Caracteres')
-      .oneOf([Yup.ref('passwordconfirm')],"las contraseñas no son iguales"), 
-      passwordconfirm: Yup.string()
+      .min(6, 'Debe Contener al Menos 6 Caracteres')
+      .oneOf([Yup.ref('passwordconfirm')], 'Las Contraseñas no son Iguales'),
+    passwordconfirm: Yup.string()
       .required('contraseña Requerida')
-      .min(6, 'debe contener al menos 6 Caracteres')
-      .oneOf([Yup.ref('password')],"las contraseñas no son iguales")
-     }),
-     onSubmit:(formData)=>{
-    axios.post(`http://localhost:3001/auth/confirmnewpassword?token=${token}`,{
-        password: formik.values.password,
-        passwordconfirm: formik.values.passwordconfirm
-       
-  }) 
-  alert("eXITOSO")
-     }
-
-  })
+      .min(6, 'Debe Contener al Menos 6 Caracteres')
+      .oneOf([Yup.ref('password')], 'las contraseñas no son iguales'),
+  });
 
   function handleShowPwd(e) {
-    // e.preventDefault()
     setShowPwd(!showPwd);
   }
 
   function handleShowPwd2(e) {
-    // e.preventDefault()
     setShowPwd2(!showPwd2);
   }
 
@@ -55,77 +36,82 @@ export default function ChangePassword() {
     password: '',
     passwordconfirm: '',
   });
+  const [error, setError] = useState({
+    password: '',
+    passwordconfirm: '',
+  });
+
+  // Funcion para Validar los Campos
+  function validadora(e){
+    const newInput = {
+      ...input,
+      [e.target.name]: e.target.value,
+    };
+    const newError = { password: '', passwordconfirm: '' };
+    try {
+      validationSchema.validateSync(newInput, { abortEarly: false });
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        err.inner.forEach((err) => {
+          const name = err.path;
+          if (name && !newError[name]) {
+            newError[name] = err.message;
+          }
+        });
+      }
+    }
+    setError(newError);
+    setInput(newInput);
+
+    
+
+  }
 
   function handleChange(e) {
     e.preventDefault();
-    setInput({
-      ...input,
-      [e.target.name]: e.target.value,
-    });
+    validadora(e)
+
   }
 
-  function handleSubmit(e) {
+    
+
+  }
+
+  function handleChange(e) {
     e.preventDefault();
     axios.post(`http://localhost:3001/auth/confirmnewpassword?token=${token}`, {
-      password: formik.values.password,
-      passwordconfirm: formik.values.passwordconfirm
-      /* password: input.password,
-      passwordconfirm: input.passwordconfirm, */
+      password: input.password,
+      passwordconfirm: input.passwordconfirm,
     });
-   
+    validadora(e);
+    swal.fire({
+      title: 'Exito',
+      text:`Contraseña Restablecida Exitosa`,
+      icon: 'success',
+      position:'center',
+      timer: 5000,
+      timerProgressBar:true
+    });
+setTimeout(() => {
+  history('/login'); 
+}, 5000);
   }
 
-  // return (
-  //   <Body>
-  //     <NavBar />
-  //     <Form onSubmit={/* (e) => handleSubmit(e) */ formik.handleSubmit }>
-  //       <Title>Restablecer su contraseña</Title>
-  //       <Div1>
-  //         <Input3
-  //           type={showPwd ? 'text' : 'password'}
-  //           name="password"
-  //           id="password"
-  //           placeholder="Ingresa tu nueva contraseña"
-  //   axios.post(`http://localhost:3001/auth/confirmnewpassword?token=${token}`,{
-  //     password: input.password,
-  //     passwordconfirm: input.passwordconfirm
-      
-  //   })
-  //   Swal.fire({
-  //       position: 'top-end',
-  //       icon: 'success',
-  //       title: 'Contraseña cambiada con éxito',
-  //       showConfirmButton: false,
-  //       timer: 2000
-  //       })
-  // }
-
   return (
-    
-       <Body>
-          <NavBar />
-          <Form onSubmit={(e) => handleSubmit(e)}>
-            <Title>
-              Restablecer tu contraseña
-            </Title>
-            <Div1>
-            <Input3
-              type={showPwd ? "text" : "password"}
-              name="password"
-              id= "password"
-              placeholder="Ingresa tu nueva contraseña"
-
-            //   id="password"
-            /* onChange={(e) => handleChange(e)} */
-
-            value={formik.values.password}
-             onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
+    <Body>
+      <NavBar />
+      <Form onSubmit={(e) => handleSubmit(e)}>
+        <Title>Restablecer su contraseña</Title>
+        <Div1>
+          <Input3
+            type={showPwd ? 'text' : 'password'}
+            name="password"
+            id="password"
+            placeholder="Ingresa tu nueva contraseña"
+            onChange={(e) => handleChange(e)}
+            value={input.password}
           />
-           {formik.touched.password && formik.errors.password ? (
-          <Span>{formik.errors.password}</Span>
-            ) : null}
-
+          <Span>{error.password}</Span>
           <Icon3 onClick={handleShowPwd}>
             {showPwd ? (
               <AiFillEye color="black" />
@@ -140,16 +126,10 @@ export default function ChangePassword() {
             name="passwordconfirm"
             id="passwordconfirm"
             placeholder="Ingresa tu nueva contraseña"
-            //   id="password"
-
-           /*  onChange={(e) => handleChange(e)} */
-            value={formik.values.passwordconfirm}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
+            onChange={(e) => handleChange(e)}
+            value={input.passwordconfirm}
           />
-            {formik.touched.passwordconfirm && formik.errors.passwordconfirm ? (
-          <Span>{formik.errors.passwordconfirm}</Span>
-            ) : null}
+          <Span>{error.passwordconfirm}</Span>
           <Icon4 onClick={handleShowPwd2}>
             {showPwd2 ? (
               <AiFillEye color="black" />
@@ -159,7 +139,11 @@ export default function ChangePassword() {
           </Icon4>
         </Div1>
 
-        <Button>Restablecer la contraseña</Button>
+        {!input.password || !input.passwordconfirm  || input.password !== input.passwordconfirm ? (
+          <Button disabled className='inactivo'>Restablecer  Contraseña</Button>
+        ) : (
+          <Button className='activo'>Restablecer  Contraseña</Button>
+        )}
       </Form>
     </Body>
   );
@@ -283,12 +267,17 @@ const Button = styled.button`
   color: #fff;
   margin: 20px auto 0;
 
+ &.inactivo {
+ background-color: #cbced1;
+}
+ &.activo {
+  background-color:#335d90;
   &:hover {
     background-color: #183659;
   }
+}
 `;
 
-
 const Span = styled.span`
-color:red;
-`
+  color: red;
+`;

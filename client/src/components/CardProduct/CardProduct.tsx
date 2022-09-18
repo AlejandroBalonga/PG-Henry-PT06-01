@@ -97,7 +97,10 @@ export default function CardProduct({ articulo }: CardProductProps) {
           <img src={articulo.img} width="180" height="127" alt="img" />
         </Body>
         <Footer>
-          <CarritoImgButoon onClick={(e) => handlerButtonCarrito(e, detalle)}>
+
+          <CarritoImgButoon>
+
+ 
             <BsCartPlus />
           </CarritoImgButoon>
           <span>|</span>

@@ -30,8 +30,7 @@ backofficeRoutesOrder.post("/", async (req, res) => {
         },
       },
     });
-
-    res.status(200).json(newOrder);
+     res.status(200).json(newOrder);
   } catch (error) {
     res.status(400).json({ message: `post Order fail ${error}` });
     return;

@@ -1,13 +1,15 @@
 import { Navigate } from "react-router-dom";
 import styled from "styled-components";
 import NavBar from "../NavBar/NavBar";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../../actions/index";
 import { useSelector } from "react-redux";
 import { ReduxState } from "../../reducer";
 import { BsGoogle } from "react-icons/bs";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import * as Yup from 'yup';
+import swal from 'sweetalert2';
 
 export default function Signup() {
   const dispatch = useDispatch<any>();
@@ -15,20 +17,93 @@ export default function Signup() {
     email: "",
     password: "",
   });
-
   const user = useSelector((state: ReduxState) => state.user);
+  const errorLogin = useSelector((state: ReduxState)=>state.error)
+console.log(errorLogin)
+  
+
+const [resetState,setResetState]=useState(errorLogin)
+
+
+  useEffect(()=>{
+    if(errorLogin ==='Usuario no existe'){
+      swal.fire({
+        title: 'Error',
+        text:'Usuario Ingresado no Existe',
+        icon: 'error',
+        position:'center',
+        timer: 3000,
+        timerProgressBar:true
+      });
+   /*    window.location.reload(); */
+   setResetState('')
+    }
+    if(errorLogin==='Password Incorrecto'){
+      swal.fire({
+        title: 'Error',
+        text:'La Contraseña Ingresa es Incorrecta',
+        icon: 'error',
+        position:'center',
+        timer: 3000,
+        timerProgressBar:true
+      });
+      setResetState('')
+    }
+    
+  },[errorLogin])
+
+ 
+
+   //creamos la esque de validacion
+   const validationSchema = Yup.object({
+    email: Yup.string()
+    .email('E-mail no es Valido')
+    .required('E-mail es Requerido'),
+    password : Yup.string()
+    .required('Contraseña es Requerido')
+    .min(6,'debe contener al menos 6 Caracteres')
+   })
+// creamos el estado local de Errores
+   const [error, setError] = useState({
+    email: '',
+    password: '',
+  });
+
+  // Funcion para Validar los Campos
+  function validadora(e){
+    const newInput = {
+      ...input,
+      [e.target.name]: e.target.value,
+    };
+    const newError = { email: '', password: '' };
+    try {
+      validationSchema.validateSync(newInput, { abortEarly: false });
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        err.inner.forEach((err) => {
+          const name = err.path;
+          if (name && !newError[name]) {
+            newError[name] = err.message;
+          }
+        });
+      }
+    }
+    setError(newError);
+    setInput(newInput); 
+
+  }
+  
+  
 
   function handleChange(e) {
     e.preventDefault();
-    setInput({
-      ...input,
-      [e.target.name]: e.target.value,
-    });
+    validadora(e)
   }
 
   function handleSubmit(e) {
     e.preventDefault();
     dispatch(loginUser(input));
+    validadora(e)
   }
 
   function redirect() {
@@ -53,39 +128,26 @@ export default function Signup() {
           <NavBar />
           <Form onSubmit={(e) => handleSubmit(e)}>
             <Saludo>
-              ¡Hola! Para seguir, ingresá los datos con los que te registraste.
+              ¡Hola! Para seguir, Ingresá los Datos con los que te Registraste.
             </Saludo>
 
             <Input3
               type="email"
               name="email"
               onChange={(e) => handleChange(e)}
-              placeholder="Ingrese su Correo"
+              placeholder="Ingrese su E-mail"
             />
-
-            <Input4
-              type="password"
-              name="password"
-              onChange={(e) => handleChange(e)}
-              placeholder="Ingrese su contraseña"
-            />
-            <Recuerdo >
-            <a href="login/checkmail/enviochangepassword">
-                ¿Olvidaste tu contraseña?
-              </a>
-            {/*   ¿Olvidaste tu contraseña? */}
-              
-              </Recuerdo>
-
+             <Span>{error.email}</Span>
             <Div1>
               <Input4
                 type={showPwd2 ? "text" : "password"}
                   id="password"
                   name="password"
                 onChange={(e) => handleChange(e)}
-                placeholder="Ingresa tu nueva contraseña"
-
+                placeholder="Ingresa tu  Contraseña"
               />
+              <Span>{error.password}</Span>
+
               <Icon4 onClick={handleShowPwd2}>
                 {showPwd2 ? (
                   <AiFillEye color="black" />
@@ -97,23 +159,30 @@ export default function Signup() {
 
             <Recuerdo>
               <a href="login/checkmail/enviochangepassword">
-                ¿Olvidaste tu contraseña?
+                ¿Olvidaste tu Contraseña?
               </a>
             </Recuerdo>
 
+              {
+                !input.email || !input.password 
+                ? 
+                <Button type="submit" className="inactivo" disabled>Iniciar Sesión</Button>
+                :
+                <Button type="submit" className="activo">Iniciar Sesión</Button>
+              }    
 
-            <Button type="submit">Iniciar sesión</Button>
-            <O> O continuar con</O>
+
+            <O> O Continuar Con </O>
 
             <Button onClick={redirect}>
               <DivIcon>
                 <BsGoogle />
               </DivIcon>
-              Iniciar sesión con Google
+              Iniciar Sesión con Google
             </Button>
 
             <P>
-              <a href="/Signup">¿No tienes cuenta? Registrate</a>
+              <a href="/Signup">¿No Tienes Cuenta? Registrate</a>
             </P>
           </Form>
         </Body>
@@ -226,13 +295,15 @@ const Button = styled.button`
   cursor: pointer;
   border-radius: 20px;
   color: #fff;
-
+  &.inactivo {
+ background-color: #cbced1;
+}
+ &.activo {
+  background-color:#335d90;
   &:hover {
-    /* box-shadow: 0 0 8px 0 #335d90 inset, 0 0 8px 4px #335d90;
-    transform: scale(1.1);
-    border: 1px solid rgba(255, 255, 255, 0.3); */
     background-color: #183659;
   }
+}
 `;
 
 const P = styled.div`
@@ -277,3 +348,10 @@ const Icon4 = styled.div`
   justify-content: right;
   align-items: right;
 `;
+
+const Span = styled.span`
+  color: red;
+`;
+
+
+

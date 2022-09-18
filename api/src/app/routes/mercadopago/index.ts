@@ -1,5 +1,6 @@
 import { Router } from "express";
 import prisma from "../../../db";
+import createReview from "../../services/createreviews";
 const { CLIENT_URL = "http://localhost:3000", API_URL = "http://localhost:3001" } = process.env
 // 
 
@@ -27,7 +28,7 @@ mercadoPagoRoutes.post("/", (req, res) => {
 
   const id_orden = nroOrder;
 
-  console.log('Este es el nro de orden: ' + nroOrder);
+  // console.log('Este es el nro de orden: ' + nroOrder);
 
   const carritoarray = JSON.parse(carrito)
   const items_ml = carritoarray.map((i: any) => ({
@@ -36,11 +37,11 @@ mercadoPagoRoutes.post("/", (req, res) => {
     unit_price: i.price,
     quantity: i.quantity,
   }));
-  console.log("*************************************************");
+  // console.log("*************************************************");
 
-  console.log('ITEMS ML: ' + items_ml)
+  // console.log('ITEMS ML: ' + items_ml)
 
-  console.log("*************************************************");
+  // console.log("*************************************************");
 
   // Crea un objeto de preferencia
   let preference = {
@@ -68,11 +69,11 @@ mercadoPagoRoutes.post("/", (req, res) => {
     .create(preference)
 
     .then(function (response: any) {
-      console.info('respondio')
+      // console.info('respondio')
 
       //global.id = response.body.id;
-      console.log(response.body);
-      console.log('eXtErnAlrEfERENCE: ' + response.body.external_reference);
+      // console.log(response.body);
+      // console.log('eXtErnAlrEfERENCE: ' + response.body.external_reference);
 
       res.json({ id: response.body.init_point });
     })
@@ -83,20 +84,20 @@ mercadoPagoRoutes.post("/", (req, res) => {
 
 //Ruta que recibe la información del pago
 mercadoPagoRoutes.get("/pagos", async (req, res) => {
-  console.log("HOLA: " + req.query.payment_id);
-  console.log("HOLA: " + req.query.status);
-  console.log("HOLA: " + req.query.payment_type);
-  console.log(req.query.external_reference);
-  console.log("ESTOY EN RUTA/PAGOS ");
+  // console.log("HOLA: " + req.query.payment_id);
+  // console.log("HOLA: " + req.query.status);
+  // console.log("HOLA: " + req.query.payment_type);
+  // console.log(req.query.external_reference);
+  // console.log("ESTOY EN RUTA/PAGOS ");
 
   const payment_id: any = req.query.payment_id;
   const payment_status: any = req.query.status;
   const payment_type: any = req.query.payment_type;
-  const external_reference: any = Number(req.query.external_reference);
+  const external_reference: any = Number(req.query.external_reference); // id de orden
 
-  console.log(req.query.payment_id);
-  console.log(payment_id);
-  console.log('EXTERNAL REFERENCE: ' + external_reference);
+  // console.log(req.query.payment_id);
+  // console.log(payment_id);
+  // console.log('EXTERNAL REFERENCE: ' + external_reference);
 
   let orderUpdate = await prisma.order.update({
     where: { id: Number(external_reference) },
@@ -107,6 +108,7 @@ mercadoPagoRoutes.get("/pagos", async (req, res) => {
       status: "cerrado",
     },
   });
+  createReview(external_reference)
   return res.redirect(CLIENT_URL + "/resultadocompra?paystatus=ok");
 });
 

@@ -454,7 +454,7 @@ export function createUser(payload) {
         }   */
         const alerta = error.response.data.msg 
         dispatch({ type: SET_ERROR, payload:  alerta});
-        console.log(alerta)
+       
       });
   };
 }
@@ -469,8 +469,10 @@ export function loginUser(payload) {
         })
         //.then(res =>{console.log(res.data.token)})
         .catch((error) => {
-          dispatch({ type: SET_ERROR, payload: error.response.data });
+          const alerta = error.response.data.msg 
+          dispatch({ type: SET_ERROR, payload:alerta });
           //  .catch(res =>{console.log(res.response.data)})
+          console.log(alerta)
         })
     );
   };

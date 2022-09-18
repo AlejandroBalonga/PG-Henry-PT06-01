@@ -9,24 +9,19 @@ import { useSelector } from 'react-redux';
 import { ReduxState } from '../../reducer';
 import swal from 'sweetalert2';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
+import { useNavigate } from 'react-router-dom';
 
 export default function Signup() {
   const dispatch = useDispatch<any>();
 
   const error = useSelector((state: ReduxState) => state.error);
   const mensaje = useSelector((state: ReduxState)=>state.mensaje)
+  const history = useNavigate();
 
   // verifico si existe un cambio en mi state
   useEffect(()=>{
     if(mensaje){
-      swal.fire({
-        title: 'Exito',
-        text:`${mensaje}`,
-        icon: 'success',
-        position:'center',
-        timer: 5000,
-        timerProgressBar:true
-      });
+     history("/login/checkmail/checkmailsignup")
 
     }
     if(error){

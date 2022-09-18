@@ -1,36 +1,27 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { postMail } from "../../services/api/mailcheck";
-import styled from "styled-components";
 import NavBar from "../NavBar/NavBar";
+import styled from "styled-components";
+import {MdOutlineMarkEmailRead} from "react-icons/md";
+export default function CheckMailPassword(){
 
+    return(
+        <div>
+        <Body>
+            <NavBar />
+            <Form>
+            <Saludo>
+                Para seguir el proceso de reestablecer tu contraseña revisa tu email!!! <br/>
+               
+              </Saludo>
+       {/* <Button >Verificar cuenta</Button> */}
+       <IconMail>
+       <MdOutlineMarkEmailRead/>
+       </IconMail>
+       
+       </Form>
+       </Body>
+      </div>
 
-export default function CheckMail() {
-  const {token}= useParams<{token: string}>();
-  const history = useNavigate();
-
-  function handleCheckMail() {
-    postMail(token)
-    // alert("funciona el boton")
-    history('/login')
-
-  }
-
-
-  return (
-    <div>
-      <Body>
-          <NavBar />
-          <Form>
-          <Saludo>
-              Ya falta poco!!! <br/>
-              Hace click sobre verificar cuenta
-            </Saludo>
-     <Button onClick={handleCheckMail}>Verificar cuenta</Button>
-
-     </Form>
-     </Body>
-    </div>
-  );
+    )
 }
 
 const Body = styled.div`
@@ -88,4 +79,11 @@ const Saludo = styled.div`
   font-weight: bold;
   text-align: center;
   margin-bottom: 25px;
+`;
+
+const IconMail = styled.div`
+    color: #335d90;
+    font-size: 100px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 `;

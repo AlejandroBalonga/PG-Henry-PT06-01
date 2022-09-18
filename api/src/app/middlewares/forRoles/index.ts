@@ -11,7 +11,7 @@ export const forClient: Handler[] = [
         .status(401)
         .send("el usuario debe ser un cliente para usar esta ruta");
     }
-    next;
+    next();
   },
 ];
 
@@ -24,7 +24,7 @@ export const forAdmin: Handler[] = [
         .status(401)
         .send("el usuario debe ser un admin para usar esta ruta");
     }
-    next;
+    next();
   },
 ];
 
@@ -37,6 +37,6 @@ export const forClientOrAdmin: Handler[] = [
         .status(401)
         .send("el usuario debe ser un cliente o un admin para usar esta ruta");
     }
-    next;
+    next();
   },
 ];

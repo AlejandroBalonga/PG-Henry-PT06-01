@@ -1,12 +1,47 @@
 import axios from "axios";
 import { useState } from "react";
 import styled from "styled-components";
-import Swal from "sweetalert2";
 import NavBar from "../NavBar/NavBar";
-
+import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 
 export default function EnvioChangePassword() {
-  
+  const history = useNavigate();
+//creamos la esque de validacion
+const validationSchema = Yup.object({
+  email: Yup.string()
+  .email('E-mail no es Valido')
+  .required('E-mail es Requerido'),
+ })
+// creamos el estado local de Errores
+ const [error, setError] = useState({
+  email: '',
+});
+// Funcion para Validar los Campos
+function validadora(e){
+  const newInput = {
+    ...input,
+    [e.target.name]: e.target.value,
+  };
+  const newError = { email: '' };
+  try {
+    validationSchema.validateSync(newInput, { abortEarly: false });
+  } catch (err) {
+    if (err instanceof Yup.ValidationError) {
+      err.inner.forEach((err) => {
+        const name = err.path;
+        if (name && !newError[name]) {
+          newError[name] = err.message;
+        }
+      });
+    }
+  }
+  setError(newError);
+  setInput(newInput); 
+
+}
+
+
   
   const [input, setInput] = useState({
     email: "",
@@ -14,22 +49,14 @@ export default function EnvioChangePassword() {
 
   function handleChange(e) {
     e.preventDefault();
-    setInput({
-      ...input,
-      [e.target.name]: e.target.value,
-    });
+    validadora(e)
   }
 
   function handleSubmit(e) {
     e.preventDefault();
+    validadora(e)
     axios.get(`http://localhost:3001/auth/resetpassword?email=${input.email}`)
-    Swal.fire({
-        position: 'top-end',
-        icon: 'success',
-        title: 'Revisá tu correo para restablecer su contraseña',
-        showConfirmButton: false,
-        timer: 2500
-      })
+    history("/login/checkmail/checkmailpassword");
   }
   
 
@@ -50,8 +77,8 @@ export default function EnvioChangePassword() {
               name="email"
               placeholder="Ingresá tu Correo"
               onChange={(e) => handleChange(e)}
-
             />
+            <Span>{error.email}</Span>
            
             
             <Button >Restablecer la contraseña</Button>
@@ -159,6 +186,9 @@ const P = styled.div`
     text-decoration: none;
     color: #335d90;
   }
+`;
+const Span = styled.span`
+  color: red;
 `;
 
 

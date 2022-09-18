@@ -102,7 +102,7 @@ const SearchBarContainer = styled.div`
 
 const Input = styled.input`
   type: "text"; // ver si imporatndo bien anda
-  width: 100%;
+  width: 40%;
   height: 2.74rem;
   border-top-left-radius: 0.313rem;
   border-bottom-left-radius: 0.313rem;
