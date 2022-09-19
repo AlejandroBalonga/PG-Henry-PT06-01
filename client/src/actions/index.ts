@@ -23,6 +23,10 @@ import {
   GET_DETAIL_USER,
   REGISTRO_EXITOSO,
   GET_DETAIL_ORDERS,
+  SET_CART,
+  ADD_PRODUCT_TO_CART,
+  REMOVE_PRODUCT_FROM_CART,
+  SET_PRODUCT_QUANTITY_FROM_CART,
 } from "./actiontype";
 
 const { REACT_APP_API_URL = "http://localhost:3001" } = process.env;
@@ -174,7 +178,7 @@ export interface params {
   categoryId: number;
 }
 
-export interface DetailOrder{
+export interface DetailOrder {
   id: number;
   amount: number;
   date: Date;
@@ -196,6 +200,18 @@ export interface DetailOrder{
   categoryId: number;
   category: Category;
   totalCount: number;
+}
+
+export interface Cart {
+  id?: number,
+  amount: number,
+  order_detail:
+  {
+    productId: number,
+    price: number,
+    quantity: number,
+    product: Articulo
+  }[]
 }
 
 export function getOrders({
@@ -443,17 +459,17 @@ export function createUser(payload) {
     return axios
       .post(REACT_APP_API_URL + "/auth/signup", payload)
       .then((response) => /* response */
-         dispatch({
+        dispatch({
           type: REGISTRO_EXITOSO,
-          payload:response.data.msg
-         })
+          payload: response.data.msg
+        })
       )
       .catch((error) => {
-         /* const alerta ={
-          msg:error.response.data.msg
-        }   */
-        const alerta = error.response.data.msg 
-        dispatch({ type: SET_ERROR, payload:  alerta});
+        /* const alerta ={
+         msg:error.response.data.msg
+       }   */
+        const alerta = error.response.data.msg
+        dispatch({ type: SET_ERROR, payload: alerta });
         console.log(alerta)
       });
   };
@@ -719,3 +735,19 @@ export function getCategoriasBO({
   };
 }
 //////////////////////back office/////////////////////////////////////////////////////////////////
+
+export function addProductToCart(product: Articulo) {
+  return { type: ADD_PRODUCT_TO_CART, payload: product }
+}
+
+export function removeProductfromCart(product: Articulo) {
+  return { type: REMOVE_PRODUCT_FROM_CART, payload: product }
+}
+
+export function setProductQuantityfromCart(product: Articulo, quantity: number) {
+  return { type: SET_PRODUCT_QUANTITY_FROM_CART, payload: { product, quantity } }
+}
+
+export function setCart(cart: Cart) {
+  return { type: SET_CART, payload: cart }
+}

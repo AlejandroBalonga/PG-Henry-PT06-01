@@ -1,8 +1,11 @@
-export interface LocalestorageState {
-  token?: string;
-}
+import { Cart } from "../actions"
 
 const localstorageKey = "ecommerce";
+
+export interface LocalestorageState {
+  token?: string;
+  cart?: Cart
+}
 
 export function getLocalstorageState() {
   const storeItem = localStorage.getItem(localstorageKey);
@@ -18,6 +21,11 @@ export function getLocalstorageState() {
 }
 
 export function setLocalstorageState(localestorageState: LocalestorageState) {
-  localStorage.setItem(localstorageKey, JSON.stringify(localestorageState));
+  const lastState = getLocalstorageState()
+  const stateToStore = {
+    ...lastState,
+    ...localestorageState
+  }
+  localStorage.setItem(localstorageKey, JSON.stringify(stateToStore));
 }
 

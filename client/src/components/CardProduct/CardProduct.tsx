@@ -5,6 +5,12 @@ import StartRating from "../StarRating/StarRating";
 import { Articulo, ArticuloCarrito } from "../../actions";
 import { BsCartPlus } from "react-icons/bs";
 import Swal from "sweetalert2";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxState } from "../../reducer"
+import { addProductToCart, setProductQuantityfromCart } from "../../actions"
+import addProductToCartInAPI from "../../services/api/addProductToCart"
+import setProductQuantityfromCartInAPI from "../../services/api/setProductQuantityfromCart"
+
 export interface CardProductProps {
   articulo: Articulo;
 }
@@ -25,71 +31,50 @@ export default function CardProduct({ articulo }: CardProductProps) {
     precioTotal: articulo?.price,
   };
 
-  let carrito = JSON.parse(localStorage.getItem("carrito"));
-  if (!carrito) {
-    carrito = [];
-  }
-
+  const dispatch = useDispatch()
+  const user = useSelector((state: ReduxState) => state.user)
+  const token = useSelector((state: ReduxState) => state.token)
+  const cart = useSelector((state: ReduxState) => state.cart)
 
 
   //agrega item al carrito
-  function handlerButtonCarrito(e, detalle) {
+  async function handlerButtonCarrito(e, detalle: ArticuloCarrito) {
     e.preventDefault();
-    const index = carrito.findIndex((art) => art.id === detalle.id);
-    if (index === -1) {
-      //agrego
-      localStorage.setItem("item", JSON.stringify(detalle));
-      carrito.push(JSON.parse(localStorage.getItem("item")));
-      localStorage.setItem("carrito", JSON.stringify(carrito));
-      localStorage.setItem("item", JSON.stringify(""));
-
-      const Toast = Swal.mixin({
-        //alerta que muestra que se agrego producto
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener("mouseenter", Swal.stopTimer);
-          toast.addEventListener("mouseleave", Swal.resumeTimer);
-        },
-      });
-
-      Toast.fire({
-        icon: "success",
-        title: "Se agregó tu producto al carrito",
-      });
-
-      navigate("/home");
+    const cartOrderDetail = cart.order_detail.find(orderDetail => orderDetail.productId === detalle.id)
+    if (!cartOrderDetail) {
+      if (user && cart.id) {
+        await addProductToCartInAPI({
+          token,
+          productId: detalle.id,
+          quantity: 1,
+          orderId: cart.id,
+        })
+      }
+      dispatch(addProductToCart(detalle))
     } else {
-      //no agrego sumo.
-      let carritoAux = JSON.parse(localStorage.getItem("carrito"));
-      carritoAux[index].totalCount = carritoAux[index].totalCount + 1;
-      carritoAux[index].precioTotal =
-        carritoAux[index].price * carritoAux[index].totalCount;
-      localStorage.setItem("carrito", JSON.stringify(carritoAux));
-
-      const Toast = Swal.mixin({
-        //alerta que muestra que se agrego producto
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener("mouseenter", Swal.stopTimer);
-          toast.addEventListener("mouseleave", Swal.resumeTimer);
-        },
-      });
-
-      Toast.fire({
-        icon: "success",
-        title: "Se agregó tu producto al carrito",
-      });
-
-      navigate("/home");
+      if (user && cart.id) {
+        await setProductQuantityfromCartInAPI({
+          token,
+          productId: detalle.id,
+          quantity: cartOrderDetail.quantity + 1,
+          orderId: cart.id
+        })
+      }
+      dispatch(setProductQuantityfromCart(detalle, cartOrderDetail.quantity + 1))
     }
+    const Toast = Swal.mixin({
+      //alerta que muestra que se agrego producto
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 1000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+      },
+    });
+    navigate("/home");
   }
 
    return (

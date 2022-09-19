@@ -21,12 +21,16 @@ import {
   GET_DETAIL_USER,
   REGISTRO_EXITOSO,
   GET_DETAIL_ORDERS,
+  SET_CART,
+  ADD_PRODUCT_TO_CART,
+  REMOVE_PRODUCT_FROM_CART,
+  SET_PRODUCT_QUANTITY_FROM_CART,
 } from "../actions/actiontype";
 import {
   getLocalstorageState,
   setLocalstorageState,
 } from "../utils/localstorage";
-import { ArticuloBO, Articulo, Category, User, Orders, OrdersBO, getDetailOrder, DetailOrder } from "../actions";
+import { ArticuloBO, Articulo, Category, User, Orders, OrdersBO, getDetailOrder, DetailOrder, Cart } from "../actions";
 import jwtdecode from "jwt-decode";
 import { string } from "yup";
 
@@ -54,6 +58,7 @@ export interface ReduxState {
   mensaje: string;
   useregistrado: boolean;
   detailOrder: DetailOrder;
+  cart: Cart | undefined;
 }
 
 interface actionI {
@@ -85,6 +90,7 @@ const initialState: ReduxState = {
   mensaje: null,
   useregistrado: null,
   detailOrder: undefined,
+  cart: undefined,
 };
 
 function rootReducer(state: ReduxState, action: actionI) {
@@ -208,6 +214,68 @@ function rootReducer(state: ReduxState, action: actionI) {
         user: usergoogle,
         token: action.payload,
       };
+    case SET_CART: {
+      return {
+        ...state,
+        cart: action.payload
+      }
+    }
+    case ADD_PRODUCT_TO_CART: {
+      const newProduct = action.payload as Articulo;
+      const newCart = {
+        ...state.cart,
+        amount: 0,
+        order_detail: (state.cart?.order_detail || []).concat(
+          {
+            productId: newProduct.id,
+            price: newProduct.price,
+            quantity: 1,
+            product: newProduct
+          }
+        )
+      }
+      setLocalstorageState({ cart: newCart })
+      return {
+        ...state,
+        cart: newCart
+      }
+    }
+    case REMOVE_PRODUCT_FROM_CART: {
+      const productToRemove = action.payload as Articulo;
+      const newCart = {
+        ...state.cart,
+        amount: 0,
+        order_detail: (state.cart?.order_detail || []).filter(orderDetail =>
+          orderDetail.productId !== productToRemove.id
+        )
+      }
+      setLocalstorageState({ cart: newCart })
+      return {
+        ...state,
+        cart: newCart
+      }
+    }
+    case SET_PRODUCT_QUANTITY_FROM_CART: {
+      const product = action.payload.product as Articulo;
+      const quantity = action.payload.quantity as number;
+      if (!state.cart) return state
+      const order_detail = [...state.cart.order_detail];
+      const index = order_detail.findIndex((orderDetail) =>
+        orderDetail.productId === product.id
+      )
+      if (index === -1) return state
+      order_detail[index].quantity = quantity
+      const newCart = {
+        ...state.cart,
+        amount: 0,
+        order_detail: order_detail
+      }
+      setLocalstorageState({ cart: newCart })
+      return {
+        ...state,
+        cart: newCart
+      }
+    }
 
     default:
       if (!state) {
@@ -224,6 +292,7 @@ function rootReducer(state: ReduxState, action: actionI) {
           ...initialState,
           user: user,
           token: localState?.token,
+          cart: localState?.cart,
         };
       }
 
