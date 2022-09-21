@@ -54,7 +54,7 @@ export default function Home() {
         priceMax: state.priceMax,
       })
     );
-  }, [dispatch, state.page, filterOrder.name, state.order, state.direction, state.categoryId, state.priceMin, state.priceMax]);
+  }, [dispatch, state?.page, filterOrder?.name, state?.order, state?.direction, state?.categoryId, state?.priceMin, state?.priceMax]);
 
   function redirect() {
     window.location.href =
