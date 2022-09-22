@@ -1,12 +1,23 @@
 import React, { useEffect, useState } from "react";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { ArticuloCarrito, getDetailOrder} from "../../actions";
+import {
+  ArticuloCarrito,
+  clearStateCart,
+  getDetailOrder,
+  setProductQuantityfromCart,
+} from "../../actions";
 import NavBar from "../NavBar/NavBar";
 import { ReduxState } from "../../reducer";
 import { AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
-import {eliminarProductos, actualizarOrder, crearOrder, verificarSiHayOrderAbierta} from "./Services";
+import {
+  eliminarProductos,
+  actualizarOrder,
+  crearOrder,
+  getUserOrderId,
+  modificarAmount,
+} from "./Services";
 
 import {
   Container,
@@ -29,14 +40,24 @@ import {
 
 import { ButtonCantidad, ButtonDelete } from "./stylesCart";
 import { useDispatch } from "react-redux";
+import setProductQuantityfromCartInAPI from "../../services/api/setProductQuantityfromCart";
+import {
+  removeProductfromCartInAPI,
+  removeProductfromCartOptions,
+} from "../../services/api/removeProductfromCart";
+import { removeProductfromCart, setNumNavBar } from "../../actions/index";
+import Swal from "sweetalert2";
+import { setLocalstorageState } from "../../utils/localstorage";
 const { REACT_APP_API_URL = "http://localhost:3001" } = process.env;
-
 
 export default function ShoppingCart() {
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
   const user = useSelector((state: ReduxState) => state.user);
-  const token1 = useSelector((state: ReduxState) => state.token);
+  const token = useSelector((state: ReduxState) => state.token);
   const carritoDB = useSelector((state: ReduxState) => state.detailOrder);
+  const cart = useSelector((state: ReduxState) => state.cart);
+  const numNav = useSelector((state: ReduxState) => state.numNavBar);
+
   const history = useNavigate();
   const dispach = useDispatch<any>();
 
@@ -54,121 +75,145 @@ export default function ShoppingCart() {
     precioTotal: detail?.price,
   };
 
+  let preciofinal = 0;
+  let productosCarrito;
+  let productosBdformateados = [];
+  const [articulo, setArticulo] = useState([]);
+
   useEffect(() => {
     if (user) {
-      dispach(getDetailOrder(user?.id))   
+      dispach(getDetailOrder(user?.id));
     }
-  }, []);
+    dispach(setNumNavBar(productosCarrito?.length));
+  }, [articulo]);
 
- 
+  //ELMINIO DUPLICADOS Y SUMO CANTIDADES
 
+  //   let carritoSort = carritofinal.sort((a, b) => a.name.localeCompare(b.name))
 
-  let preciofinal = 0;
-  let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
- 
+  //  for (let i = 0; i < carritoSort.length; i++) {
+  //      for (let j =1 ; j < carritoSort.length; j++){
 
-  let productosBdformateados = [];
-  if (user) {  
-    
-    if (carritoDB) {   //hay productos en la base de datos // FORMATEO EN UN OBJETO      
-      
-      for (let i = 0; i < carritoDB.order_detail.length; i++) {
-        productosBdformateados.push({
-          id: carritoDB.order_detail[i].product.id,
-          name: carritoDB.order_detail[i].product.name,
-          brand: carritoDB.order_detail[i].product.brand,
-          stock: carritoDB.order_detail[i].product.stock,
-          price: carritoDB.order_detail[i].product.price,
-          img: carritoDB.order_detail[i].product.img,
-          state: carritoDB.order_detail[i].product.state,
-          categoryId: carritoDB.order_detail[i].product.categoryId,
-          category: carritoDB.order_detail[i].product.brand, // esto esta mal
-          totalCount: carritoDB.order_detail[i].quantity,
-          precioTotal: carritoDB.order_detail[i].quantity * carritoDB.order_detail[i].product.price,
-        });
-      }
+  //        if (carritoSort[i]?.id === carritoSort[j]?.id){
+  //          carritoSort[i].totalCount = carritoSort[i].totalCount + carritoSort[j].totalCount
+  //          carritoSort.splice(j,1)
+  //        }
+  //      }
+  //  }
 
-      //SETEO BASE DE DATOS FORMATEADO A "LS CARRITO 2"
-      localStorage.setItem('carrito2', JSON.stringify(productosBdformateados))
-      let carrito2 = JSON.parse(localStorage.getItem("carrito2"));
-      
-      //SI hay ademas productos en el localStorage agregados antes de loguearse 
-      if (productosCarrito) {      
-        let carritofinal = productosCarrito.concat(carrito2);
-        localStorage.setItem('CARRITOFINAL', JSON.stringify(carritofinal))
-
-        //ELMINIO DUPLICADOS Y SUMO CANTIDADES 
-
-        //   let carritoSort = carritofinal.sort((a, b) => a.name.localeCompare(b.name))
-
-        //  for (let i = 0; i < carritoSort.length; i++) {
-        //      for (let j =1 ; j < carritoSort.length; j++){
-
-        //        if (carritoSort[i]?.id === carritoSort[j]?.id){
-        //          carritoSort[i].totalCount = carritoSort[i].totalCount + carritoSort[j].totalCount
-        //          carritoSort.splice(j,1)
-        //        }
-        //      }
-        //  }
-        productosCarrito = carritofinal;
-      } else { // SI NO HAY CARRITO
-        productosCarrito = carrito2;
-        localStorage.setItem('CARRITOFINAL', JSON.stringify(carrito2))
-      }
-    } else { // LOGUEADO PERO SIN ORDENES ABIERTAS
-      productosCarrito = JSON.parse(localStorage.getItem("carrito"));
+  if (user) {
+    // HAY USUARIO???
+    for (let i = 0; i < carritoDB?.order_detail?.length; i++) {
+      productosBdformateados.push({
+        id: carritoDB.order_detail[i].product.id,
+        name: carritoDB.order_detail[i].product.name,
+        brand: carritoDB.order_detail[i].product.brand,
+        stock: carritoDB.order_detail[i].product.stock,
+        price: carritoDB.order_detail[i].product.price,
+        img: carritoDB.order_detail[i].product.img,
+        state: carritoDB.order_detail[i].product.state,
+        categoryId: carritoDB.order_detail[i].product.categoryId,
+        category: carritoDB.order_detail[i].product.brand, // esto esta mal
+        totalCount: carritoDB.order_detail[i].quantity,
+        precioTotal:
+          carritoDB.order_detail[i].quantity *
+          carritoDB.order_detail[i].product.price,
+      });
     }
-  } else { // NO ESTA LOGUEADO 
-    productosCarrito = JSON.parse(localStorage.getItem("carrito"));
+
+    productosCarrito = productosBdformateados;
+  } else {
+    // NO HAY USUARIO
+    let productosFormatLS = [];
+
+    for (let i = 0; i < cart?.order_detail.length; i++) {
+      productosFormatLS.push({
+        id: cart?.order_detail[i].product.id,
+        name: cart?.order_detail[i].product.name,
+        brand: cart?.order_detail[i].product.brand,
+        stock: cart?.order_detail[i].product.stock,
+        price: cart?.order_detail[i].product.price,
+        img: cart?.order_detail[i].product.img,
+        state: cart?.order_detail[i].product.state,
+        categoryId: cart?.order_detail[i].product.categoryId,
+        category: cart?.order_detail[i].product.brand, // esto esta mal
+        totalCount: cart?.order_detail[i].quantity,
+        precioTotal:
+          cart?.order_detail[i].quantity * cart?.order_detail[i].product.price,
+      });
+    }
+    productosCarrito = productosFormatLS;
   }
 
-  
-   //suma el precio total de los productos en carrito
-   preciofinal = productosCarrito?.reduce(
+  //suma el precio total de los productos en carrito
+  preciofinal = productosCarrito?.reduce(
     (sum, b) => sum + Number(b.precioTotal),
     0
   );
 
-  const [articulo, setArticulo] = useState([productosCarrito]);
-
   //modifica la cantidad de items
-  function handlerCantidadItem(detalle, signo: string) {
-    console.log(detalle);    
+  async function handlerCantidadItem(e, detalle, signo: string) {
+    e.preventDefault();
     setArticulo(detalle);
-    const index = productosCarrito.findIndex((art) => art.id === detalle.id);
-    console.log(index);
-    
-    let carritoAux = JSON.parse(localStorage.getItem("carrito"));
-    //let carritoAux = productosCarrito;
-    console.log("carritoAux: " + carritoAux[index].totalCount);    
+    if (user) {
+      //SI HAY USUARIO
+      const cartOrderDetailDB = carritoDB?.order_detail?.find(
+        (orderDetail) => orderDetail.productId === detalle.id
+      );
+      signo === "+"
+        ? await setProductQuantityfromCartInAPI({
+            token,
+            productId: detalle.id,
+            quantity: cartOrderDetailDB?.quantity + 1,
+            orderId: cartOrderDetailDB?.orderId,
+          })
+        : await setProductQuantityfromCartInAPI({
+            token,
+            productId: detalle.id,
+            quantity: cartOrderDetailDB?.quantity - 1,
+            orderId: cartOrderDetailDB?.orderId,
+          });
+    }
+    // NO HAY USUARIO USO EL LS
+    let index = cart?.order_detail?.findIndex(
+      // busco el indice del producto
+      (art) => art.productId === detalle.id
+    );
     signo === "+"
-      ? (carritoAux[index].totalCount = carritoAux[index].totalCount + 1)
-      : signo === "-"
-      ? (carritoAux[index].totalCount = carritoAux[index].totalCount - 1)
-      : (carritoAux[index].totalCount = carritoAux[index].totalCount);
-    carritoAux[index].precioTotal =
-      carritoAux[index].price * carritoAux[index].totalCount;
-    //productosCarrito = carritoAux;
-    console.log(productosCarrito);
-    
-    localStorage.setItem("carrito", JSON.stringify(carritoAux));
+      ? dispach(
+          setProductQuantityfromCart(
+            detalle,
+            cart?.order_detail[index]?.quantity + 1
+          )
+        )
+      : dispach(
+          setProductQuantityfromCart(
+            detalle,
+            cart?.order_detail[index]?.quantity - 1
+          )
+        );
   }
 
-  //elimina items del carrito LS
-  function handlerDelete(checkOrderUser, detalle) {
-    if (!user) {
-      setArticulo(detalle);
-      let carritoDelete = productosCarrito;
-      let carritoIndex = carritoDelete.findIndex((el) => el.id === detalle.id);
-      carritoDelete.splice(carritoIndex, 1);
-      localStorage.setItem("carrito", JSON.stringify(carritoDelete));
-    } else {
-      let carritoDelete = productosCarrito;
-      let carritoIndex = carritoDelete.findIndex((el) => el.id === detalle.id);
-      carritoDelete.splice(carritoIndex, 1);
-      eliminarProductos(checkOrderUser);
-      actualizarOrder2(checkOrderUser, carritoDelete);
+  //elimina items del carrito LS.
+  async function handlerDelete(e, orderId, productId) {
+    e.preventDefault();
+    setArticulo(productId);
+    if (user) {
+      await removeProductfromCartInAPI({
+        token,
+        orderId,
+        productId: productId?.id,
+        quantity: productId.totalCount,
+      } as removeProductfromCartOptions);
     }
+    // si no hay usuario borra el local storage
+    dispach(removeProductfromCart(productId));
+
+    // window.location.reload()
+    Swal.fire({
+      icon: "success",
+      title: "Se eliminó producto del carrito",
+    });
   }
 
   //deshabilita el boton de disminuir cantidad si es <= 1
@@ -176,72 +221,53 @@ export default function ShoppingCart() {
     return productosCarrito[i]?.totalCount <= 1 ? true : false;
   }
 
-  const carritoOrden = productosCarrito?.map((p) => {
-    return {
-      productId: p.id,
-      price: p.price,
-      quantity: p.totalCount,
-    };
-  });
-
-  const ordenPorEnviar = {
-    amount: preciofinal,
-    userId: user?.id,
-    status: "Abierto",
-    carritoOrden: carritoOrden,
-  };
-
-
-
- 
-
-  async function actualizarOrder2(checkOrderUser, carritoDelete) {
-    // ACTULIZAR TABLA ORDER
-    const actualizado = await axios.put(
-      REACT_APP_API_URL + "/backoffice/order/" + checkOrderUser,
-      {
-        amount: carritoDB.amount,
-        status: "abierto",
-        carritoOrden: carritoDelete,
-      }
-    );
-    //console.log("actualizado: " + actualizado);
-  }
-
-
+  //al modificar la cantidad en carrito, al finalizar compra....
 
   //BOTON FINALIZA COMPRA
   async function sendOrderToDB(e) {
     e.preventDefault();
+    if (user?.id) {
+      // si hay usuario logueado.
 
-    console.log("aca");
-    if (user?.id) {  // si hay usuario logueado.
-      
-      const checkOrderUser = await verificarSiHayOrderAbierta(user.id); // verifica si hay orden abierta
-      console.log("checkOrderUser: " , checkOrderUser);
-      
-      if (checkOrderUser === "sin ordenes abiertas") { // no existe orden abierta para el usuario 
+      const checkOrderUser = await getUserOrderId(user.id); // verifica si hay orden abiert
 
-        var order = await crearOrder(ordenPorEnviar, token1);
-        history("/pagar?order=" + order.data.id); 
-        localStorage.removeItem("carrito");
-     
-      } else { // existe orden
-        eliminarProductos(checkOrderUser);    // elimina productos  
-        actualizarOrder(checkOrderUser, ordenPorEnviar); // actualiza los productos de la orden.
-        history("/pagar?order=" + checkOrderUser);
-        localStorage.removeItem("carrito");
-      }
-    } else { // si no hay usuario logueado, voy a login. 
+      modificarAmount(checkOrderUser, preciofinal, token);
+
+      //CHequear  que hay o no stock
+
+      history("/pagar?order=" + checkOrderUser);
+    } else {
+      // si no hay usuario logueado, voy a login.
       history("/login");
     }
+  }
+
+  async function handlerVaciarCarrito(e, orderId) {
+    e.preventDefault();
+    setArticulo([]);
+
+    if (user) {
+      await eliminarProductos(orderId?.id);
+      // window.location.assign("/ShoppingCart")
+      Swal.fire({
+        icon: "success",
+        title: "Se vació el carrito",
+      });
+    } 
+    dispach(clearStateCart());
+      // window.location.assign("/ShoppingCart")
+      Swal.fire({
+        icon: "success",
+        title: "Se vació el carrito",
+      });
+    
   }
 
   return (
     <>
       <NavBar />
       <Container>
-        {!productosCarrito ? (
+        {!productosCarrito.length ? (
           <DivTitulo>
             <h3>No hay productos en el carrito</h3>
           </DivTitulo>
@@ -255,7 +281,9 @@ export default function ShoppingCart() {
                 <h5>Cantidad</h5>
                 <h5>Precio Unidad</h5>
                 <h5>Precio Cantidad</h5>
-                <h5></h5>
+                <h5 onClick={(e) => handlerVaciarCarrito(e, carritoDB)}>
+                  VaciarCarrito
+                </h5>
               </DivNombreColumnas>
             </DivTitulo>
 
@@ -268,19 +296,23 @@ export default function ShoppingCart() {
                     <ButtonCantidad
                       value={i}
                       disabled={habilitarBoton(i)}
-                      onClick={() => handlerCantidadItem(p, "-")}
+                      onClick={(e) => handlerCantidadItem(e, p, "-")}
                     >
                       -
                     </ButtonCantidad>
                     <h4>{p.totalCount}</h4>
-                    <ButtonCantidad onClick={() => handlerCantidadItem(p, "+")}>
+                    <ButtonCantidad
+                      onClick={(e) => handlerCantidadItem(e, p, "+")}
+                    >
                       +
                     </ButtonCantidad>
                   </ContainerCantidad>
                   <Unidad>${p.price?.toFixed(2)}</Unidad>
-                  <Unidad>${p.price?.toFixed(2)}</Unidad>{" "}
+                  <Unidad>${p.precioTotal?.toFixed(2)}</Unidad>{" "}
                   {/*verificar esta liunea y colocar el importe total por la cantidad de articulos*/}
-                  <ButtonDelete onClick={() => handlerDelete(carritoDB?.id, p)}>
+                  <ButtonDelete
+                    onClick={(e) => handlerDelete(e, carritoDB?.id, p)}
+                  >
                     <AiOutlineDelete />
                   </ButtonDelete>
                 </DivUnidad>

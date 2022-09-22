@@ -17,6 +17,7 @@ import {
   GET_DETAIL_PRODUCT,
   POST_SIGNIN,
   CLEAR_STATE,
+  CLEAR_STATE_CART,
   GET_GOOGLE,
   GET_DETAIL_USER,
   REGISTRO_EXITOSO,
@@ -25,6 +26,7 @@ import {
   ADD_PRODUCT_TO_CART,
   REMOVE_PRODUCT_FROM_CART,
   SET_PRODUCT_QUANTITY_FROM_CART,
+  ALTER_NUM_NAV
 } from "../actions/actiontype";
 import {
   getLocalstorageState,
@@ -59,12 +61,15 @@ export interface ReduxState {
   useregistrado: boolean;
   detailOrder: DetailOrder;
   cart: Cart | undefined;
+  numNavBar: number | undefined
 }
 
 interface actionI {
   type: string;
   payload: any;
 }
+
+const initialCart: Cart = {amount:0, order_detail:[] }
 
 const initialState: ReduxState = {
   ordersBO: [],
@@ -90,11 +95,14 @@ const initialState: ReduxState = {
   mensaje: null,
   useregistrado: null,
   detailOrder: undefined,
-  cart: undefined,
+  cart: initialCart,
+  numNavBar: undefined
 };
 
+
+
 function rootReducer(state: ReduxState, action: actionI) {
-  switch (action.type) {
+   switch (action.type) {
     case REGISTRO_EXITOSO:
       return {
         ...state,
@@ -102,7 +110,7 @@ function rootReducer(state: ReduxState, action: actionI) {
         useregistrado: true,
       };
 
-    case GET_ARTICULOS:
+    case GET_ARTICULOS: 
       return {
         ...state,
         articulos: action.payload,
@@ -242,6 +250,7 @@ function rootReducer(state: ReduxState, action: actionI) {
     }
     case REMOVE_PRODUCT_FROM_CART: {
       const productToRemove = action.payload as Articulo;
+    
       const newCart = {
         ...state.cart,
         amount: 0,
@@ -276,6 +285,23 @@ function rootReducer(state: ReduxState, action: actionI) {
         cart: newCart
       }
     }
+    
+    case CLEAR_STATE_CART: 
+      
+      setLocalstorageState({ cart: initialCart })
+       return {
+        ...state.cart,
+        cart: initialCart
+      };
+
+    case ALTER_NUM_NAV:{
+      console.log("REDUCERRRRRRRRRRRRRRRRRR", action.payload, state.numNavBar);
+      
+      return {
+        ...state,
+        numNavBar: action.payload
+       }
+    }
 
     default:
       if (!state) {
@@ -292,7 +318,7 @@ function rootReducer(state: ReduxState, action: actionI) {
           ...initialState,
           user: user,
           token: localState?.token,
-          cart: localState?.cart,
+          cart: localState?.cart || initialCart
         };
       }
 

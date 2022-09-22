@@ -8,11 +8,13 @@ export interface LocalestorageState {
 }
 
 export function getLocalstorageState() {
+ 
+  try {
   const storeItem = localStorage.getItem(localstorageKey);
   if (!storeItem) {
     return null;
   }
-  try {
+  
     return JSON.parse(storeItem) as LocalestorageState;
   } catch (error) {
     console.warn(error);
@@ -22,6 +24,7 @@ export function getLocalstorageState() {
 
 export function setLocalstorageState(localestorageState: LocalestorageState) {
   const lastState = getLocalstorageState()
+  
   const stateToStore = {
     ...lastState,
     ...localestorageState

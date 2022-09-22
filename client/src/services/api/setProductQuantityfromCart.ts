@@ -10,8 +10,8 @@ export interface setProductQuantityfromCartOptions {
 }
 
 export default function setProductQuantityfromCartInAPI({ token, orderId, productId, quantity }: setProductQuantityfromCartOptions) {
-    return axios.post(
-        REACT_APP_API_URL + "/???",
+    return axios.put(
+        REACT_APP_API_URL +  "/backoffice/order/orderProductCartQuantity/",
         { orderId, productId, quantity },
         { headers: { authorization: `Bearer ${token}` } }
     ).then((response) => response.data)

@@ -6,10 +6,10 @@ import { Articulo, ArticuloCarrito } from "../../actions";
 import { BsCartPlus } from "react-icons/bs";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxState } from "../../reducer"
-import { addProductToCart, setProductQuantityfromCart } from "../../actions"
-import addProductToCartInAPI from "../../services/api/addProductToCart"
-import setProductQuantityfromCartInAPI from "../../services/api/setProductQuantityfromCart"
+import { ReduxState } from "../../reducer";
+import { addProductToCart, setProductQuantityfromCart } from "../../actions";
+import addProductToCartInAPI from "../../services/api/addProductToCart";
+import { crearOrder, getUserOrderId } from "../Carrito/Services";
 
 export interface CardProductProps {
   articulo: Articulo;
@@ -31,53 +31,157 @@ export default function CardProduct({ articulo }: CardProductProps) {
     precioTotal: articulo?.price,
   };
 
-  const dispatch = useDispatch()
-  const user = useSelector((state: ReduxState) => state.user)
-  const token = useSelector((state: ReduxState) => state.token)
-  const cart = useSelector((state: ReduxState) => state.cart)
+  const dispatch = useDispatch();
+  const user = useSelector((state: ReduxState) => state.user);
+  const token = useSelector((state: ReduxState) => state.token);
+  let cart = useSelector((state: ReduxState) => state.cart);
+  const carritoDB = useSelector((state: ReduxState) => state.detailOrder);
 
 
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 1200,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", Swal.stopTimer);
+      toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+  });
   //agrega item al carrito
   async function handlerButtonCarrito(e, detalle: ArticuloCarrito) {
     e.preventDefault();
-    const cartOrderDetail = cart.order_detail.find(orderDetail => orderDetail.productId === detalle.id)
-    if (!cartOrderDetail) {
-      if (user && cart.id) {
+
+    if (user) {
+      // TRABAJO EN BD
+      //CUANDO SE LOGEA VERIFICA SI HAY ORDEN O NO Y LA CREA
+      // SINCRONIZA EN CASO DE QUE HAYUA CARRITO Y SIGUE ACA
+      const checkOrderUser = await getUserOrderId(user?.id);
+
+      //Hay una orden abierta?
+      if (checkOrderUser === "sin ordenes abiertas") {
+        var order = await crearOrder(
+          {
+            amount: 0,
+            userId: user?.id,
+            status: "Abierto",
+            carritoOrden: [],
+          },
+          token
+        );
+      
         await addProductToCartInAPI({
+          // ESTA RUTA DEBERIA BUISCAR IGUAL Y SUMAR O AGREGAR
           token,
           productId: detalle.id,
           quantity: 1,
-          orderId: cart.id,
-        })
-      }
-      dispatch(addProductToCart(detalle))
-    } else {
-      if (user && cart.id) {
-        await setProductQuantityfromCartInAPI({
+          orderId: order.data.id,
+          price: detalle.price,
+        });
+      } else {
+        await addProductToCartInAPI({
+          // ESTA RUTA DEBERIA BUISCAR IGUAL Y SUMAR O AGREGAR
           token,
           productId: detalle.id,
-          quantity: cartOrderDetail.quantity + 1,
-          orderId: cart.id
-        })
+          quantity: 1,
+          orderId: checkOrderUser,
+          price: detalle.price,
+        });
       }
-      dispatch(setProductQuantityfromCart(detalle, cartOrderDetail.quantity + 1))
     }
-    const Toast = Swal.mixin({
-      //alerta que muestra que se agrego producto
-      toast: true,
-      position: "top-end",
-      showConfirmButton: false,
-      timer: 1000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.addEventListener("mouseenter", Swal.stopTimer);
-        toast.addEventListener("mouseleave", Swal.resumeTimer);
-      },
+      // NO HAY USUARIO USO EL LS
+      const cartOrderDetail = cart?.order_detail?.find(
+        (orderDetail) => orderDetail.productId === detalle.id
+      );
+      if (!cartOrderDetail) {
+        //CHEQUEA SI EL PROD ESTA EN CART, sino esta....
+        dispatch(addProductToCart(detalle));
+      } else {
+        dispatch(
+          setProductQuantityfromCart(detalle, cartOrderDetail.quantity + 1)
+        );
+      }
+   
+    Toast.fire({
+      icon: "success",
+      title: "Se agregó el prodcuto al carrito",
     });
     navigate("/home");
   }
+  // e.preventDefault();
+  // console.log(detalle);
+  // const cartOrderDetail = cart?.order_detail?.find(
+  //   (orderDetail) => orderDetail.productId === detalle.id
+  // );
+  // if (!cartOrderDetail) {
+  //   const checkOrderUser = await verificarSiHayOrderAbierta(user?.id);
+  //   if (user) {
+  //     if (checkOrderUser) {//si hay orden abierta, agrega producto en bd
+  //       console.log("Si hay orden abierta, agrega producto en bd");
 
-   return (
+  //       await addProductToCartInAPI({
+  //         token,
+  //         productId: detalle.id,
+  //         quantity: 1,
+  //         orderId: checkOrderUser,
+  //         price: detalle.price,
+  //       });
+  //     } else {
+  //       // Si no hay orden abierta crea una
+  //       console.log("Si no hay orden abierta crea una");
+
+  //       let carritoOrden = {
+  //         productId: detalle.id,
+  //         price: detalle.price,
+  //         quantity: 1,
+  //       };
+  //       //crea una nueva orden pasandole 1 producto solamente, ESTOY EN CARD, POR ESO
+  //       var order = await crearOrder(
+  //         {
+  //           amount: detalle.price,
+  //           userId: user?.id,
+  //           status: "Abierto",
+  //           carritoOrden: carritoOrden,
+  //         },
+  //         token
+  //       );
+  //       console.log("AGREGUE UN PRODUCTO", order);
+  //     }
+
+  //   } else {
+  //     dispatch(addProductToCart(detalle));
+  //   }
+  // } else { //si encuentra un producto igual en la orden... lo suma
+  //   if (user ) {
+
+  //     let index = cart.order_detail.findIndex((art) => art.productId === detalle.id);
+  //     console.log(cart.order_detail[index].quantity )
+  //     let cant = cart.order_detail[index].quantity
+  //     await setProductQuantityfromCartInAPI({
+  //       token,
+  //       productId: detalle.id,
+  //       quantity: (cant + 1),
+  //       orderId: cart.id,
+  //     });
+  //   }
+  //   //si no hay usuario - suma al carrito
+  //   dispatch(
+  //     setProductQuantityfromCart(detalle, cartOrderDetail.quantity + 1)
+  //   );
+  // }
+  // const Toast = Swal.mixin({
+  //   toast: true,
+  //   position: 'top-end',
+  //   showConfirmButton: false,
+  //   timer: 1300,
+  //   timerProgressBar: true,
+  //   didOpen: (toast) => {
+  //      toast.addEventListener('mouseleave', Swal.resumeTimer)
+  //   }
+  // })
+
+  return (
     <CardLink to={`/detail/${articulo.id}`}>
       <Tarjeta>
         <Body>

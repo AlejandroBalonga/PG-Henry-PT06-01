@@ -2,7 +2,6 @@ import { Router } from "express";
 import prisma from "../../../db";
 import nodemailer from "nodemailer";
 
-
 export interface ArticuloCarrito {
   id: number;
   price: number;
@@ -15,25 +14,47 @@ backofficeRoutesOrder.post("/", async (req, res) => {
   try {
     const { amount, status, userId, carritoOrden } = req.body;
 
+
+    const checkOrderAbierta = await prisma.order.findFirst({
+      where: {userId: userId, status: "Abierto" }
+    })
+    console.log(checkOrderAbierta, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    
+
+    if(checkOrderAbierta){
+      return res.status(400).send("Ya tiene una orden abierta");
+    }
+    
     const newOrder = await prisma.order.create({
       data: {
         amount: amount, //importe de la orden
         status: status, //estado de la orden (abierta-cerrada)
-        userId: userId, //id del usuario
+        // userId: userId,
+        user: { connect: { id: userId } },
         payment_id: "", //id del pago
         payment_status: "", //estado del pago
         payment_type: "", //tipo del pago
         order_detail: {
           createMany: {
-            data: carritoOrden,
+            data: carritoOrden.map((orderDetail: any) => ({
+              price: orderDetail.price,
+              productId: orderDetail.productId,
+              quantity: orderDetail.quantity,
+            })),
           },
         },
       },
     });
 
-    res.status(200).json(newOrder);
+    const order = await prisma.order.findUnique({
+      where: { id: newOrder.id },
+      include: { order_detail: { include: { product: true } } },
+    });
+
+    res.status(200).json(order);
   } catch (error) {
-    res.status(400).json({ message: `post Order fail ${error}` });
+    console.error(error);
+    res.status(500).json({ message: `post Order fail ${error}` });
     return;
   }
 });
@@ -54,9 +75,11 @@ backofficeRoutesOrder.get("/checkorder/:iduser", async (req, res) => {
   const userId = Number(req.params.iduser);
   const orderUnique = await prisma.order.findFirst({
     where: { userId: userId, status: "Abierto" },
-    include: {order_detail:{
-      include:{ product: true }}
-    }
+    include: {
+      order_detail: {
+        include: { product: true },
+      },
+    },
   });
 
   orderUnique;
@@ -82,6 +105,158 @@ backofficeRoutesOrder.get("/:id", async (req, res) => {
   }
 });
 
+backofficeRoutesOrder.delete("/:id", async (req, res) => {
+  //PROBAR CUANDO ESTE LISTA LA RUTA DE USER
+
+  try {
+    const orderId = Number(req.params.id);
+    //const { name } = req.body;
+
+    let orderToDelete = await prisma.order.delete({
+      where: { id: orderId },
+    });
+    res.json(orderToDelete);
+  } catch (error) {
+    res.send(`No se pudo eliminar la orden, ${error}`);
+  }
+});
+
+backofficeRoutesOrder.delete("/orderProduct/:id", async (req, res) => {
+  //borra los articulos de la orden relacionada
+  //(probar para vaciar carrito)
+
+  try {
+    const orderId = Number(req.params.id);
+
+    let productToDelete = await prisma.order_detail.deleteMany({
+      where: { orderId: orderId },
+    });
+    res.json(productToDelete);
+  } catch (error) {
+    res.send(`No se pudo eliminar el producto, ${error}`);
+  }
+});
+
+//AGREGA  UN  SOLO PRODUCTO A UNA ORDEN y chequea que no repetido sino suma cantidades
+backofficeRoutesOrder.post("/addProductCart/", async (req, res) => {
+  try {
+    const { orderId, productId, quantity, price } = req.body;
+    console.log(req.body);
+
+    const product = await prisma.order_detail.findFirst({
+      where: { productId: productId, orderId: orderId },
+    });
+
+    console.log(product);
+
+    if (product) {
+      const actualizoProduct = await prisma.order_detail.update({
+        where: { id: product.id },
+        data: { quantity: quantity + product.quantity },
+      });
+    } else {
+      const crearProduct = await prisma.order_detail.create({
+        data: {
+          orderId: orderId,
+          productId: productId,
+          quantity: quantity,
+          price: price,
+        },
+      });
+    }
+    res.status(200).json("ok");
+  } catch (error) {
+    res.status(400).json({ message: `modicar cantidad fallo ${error}` });
+    return;
+  }
+});
+
+//ELIMINA UN  SOLO PRODUCTO DE UNA ORDEN (tachito de)
+backofficeRoutesOrder.delete("/orderProductCart/:orderId", async (req, res) => {
+  const orderId = Number(req.params.orderId);
+  const productId = Number(req.body.productId);
+  console.log("productId: ", productId, "orderID", orderId);
+  try {
+    let productToDelete = await prisma.order_detail.deleteMany({
+      where: {
+        productId: productId,
+        orderId: orderId,
+      },
+    });
+    res.json(productToDelete);
+  } catch (error) {
+    res.send(`No se pudo eliminar el producto de la orden, ${error}`);
+  }
+});
+
+//MODIFICA CANTIDAD EN CARRITO
+backofficeRoutesOrder.put("/orderProductCartQuantity/", async (req, res) => {
+  try {
+    const { orderId, productId, quantity } = req.body;
+    console.log(req.body);
+
+    let quantitytoChange = await prisma.order_detail.updateMany({
+      where: {
+        orderId: orderId,
+        productId: productId,
+      },
+      data: {
+        quantity: quantity,
+      },
+    });
+
+    res.status(200).json(quantitytoChange);
+  } catch (error) {
+    res.status(400).json({ message: `modicar cantidad fallo ${error}` });
+    return;
+  }
+});
+
+//SINCRONIZAR CARRITO
+backofficeRoutesOrder.post("/orderProductSync/:id", async (req, res) => {
+  try {
+    const orderId = Number(req.params.id);
+    let { cart } = req.body;
+    if (!cart?.order_detail) {
+      return res.status(400).send("Se necesita un carrito");
+    }
+    Promise.all(
+      cart.order_detail.map(async (item: any) => {
+        const searchProduct = await prisma.order_detail.findFirst({
+          where: { productId: item.productId, orderId: orderId },
+        });
+        console.log(searchProduct);
+
+        if (searchProduct) {
+          const actualizoProduct = await prisma.order_detail.update({
+            where: { id: searchProduct.id },
+            data: { quantity: item.quantity || searchProduct.quantity},
+          });
+        } else {
+          const crearProduct = await prisma.order_detail.create({
+            data: {
+              orderId: orderId,
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+            },
+          });
+        }
+      })
+    );
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { order_detail: { include: { product: true } } },
+    });
+
+    res.status(200).json(order);
+  } catch (error) {
+    res.status(400).json({ message: `fallo la sincronizacion ${error}` });
+    return;
+  }
+});
+
 backofficeRoutesOrder.put("/:id", async (req, res) => {
   const orderlId = Number(req.params.id);
   const { amount, status, carritoOrden } = req.body;
@@ -102,38 +277,20 @@ backofficeRoutesOrder.put("/:id", async (req, res) => {
   res.status(200).json(orderToChange);
 });
 
-backofficeRoutesOrder.delete("/:id", async (req, res) => {
-  //PROBAR CUANDO ESTE LISTA LA RUTA DE USER
+backofficeRoutesOrder.put("/updateAmount/:id", async (req, res) => {
+  const orderlId = Number(req.params.id);
+  const { amount } = req.body;
+  console.log(amount, "------------------------------amount");
 
-  try {
-    const orderId = Number(req.params.id);
-    //const { name } = req.body;
+  let orderToChange = await prisma.order.update({
+    where: { id: orderlId },
+    data: {
+      amount: amount,
+    },
+  });
 
-    let orderToDelete = await prisma.order.delete({
-      where: { id: orderId },
-    });
-    res.json(orderToDelete);
-  } catch (error) {
-    res.send(`No se pudo eliminar la orden, ${error}`);
-  }
+  res.status(200).json(orderToChange);
 });
-
-backofficeRoutesOrder.delete("/orderProduct/:id", async (req, res) => {
-  //borra los articulos de la orden relacionada
-
-  try {
-    const orderId = Number(req.params.id);
-
-    let productToDelete = await prisma.order_detail.deleteMany({
-      where: { orderId: orderId },
-    });
-    res.json(productToDelete);
-  } catch (error) {
-    res.send(`No se pudo eliminar el producto, ${error}`);
-  }
-});
-
-
 
 /* Creating a transport object that will be used to send the email. */
 // var transport = {

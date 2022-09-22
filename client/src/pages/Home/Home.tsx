@@ -5,7 +5,12 @@ import { useSelector } from "react-redux";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import TopMenu from "../../components/TopMenu/TopMenu";
 import { useDispatch } from "react-redux";
-import { getArticulos, getCategorias, getDetailOrder } from "../../actions";
+import {
+  clearStateCart,
+  getArticulos,
+  getCategorias,
+  getDetailOrder,
+} from "../../actions";
 import { ReduxState } from "../../reducer";
 import Paginado from "../../components/Paginado/Paginado";
 import OrderName from "../../components/SideBar/OrderName";
@@ -14,8 +19,14 @@ import OrderBrand from "../../components/SideBar/OrderBrand";
 import NavBar from "../../components/NavBar/NavBar";
 import Carousel from "../../components/Carousel/Carousel";
 import SideBar from "../../components/SideBar/SideBar";
-import { ArticuloCarrito } from "../../actions";
-import { eliminarProductos, actualizarOrder, crearOrder } from "../../components/Carrito/Services";
+import syncCart from "../../services/api/syncCart";
+import { syncCartOptions } from "../../services/api/syncCart";
+import {
+  setLocalstorageState,
+  LocalestorageState,
+} from "../../utils/localstorage";
+import { crearOrder, getUserOrderId } from "../../components/Carrito/Services";
+import { setCart } from "../../actions/index";
 
 export default function Home() {
   const [state, setState] = useState({
@@ -31,45 +42,51 @@ export default function Home() {
 
   const totalCount = useSelector((state1: ReduxState) => state1.totalCount);
 
-  // const user = useSelector((state: ReduxState) => state.user);
+  const user = useSelector((state: ReduxState) => state.user);
 
-  // const carritoDB = useSelector((state: ReduxState) => state.detailOrder);
+  const token = useSelector((state: ReduxState) => state.token);
 
-  const token1 = useSelector((state: ReduxState) => state.token);
+  const cart = useSelector((state: ReduxState) => state.cart);
 
   const dispatch = useDispatch<any>();
 
+  async function inicializarCarrito() {
+    if (!user || !cart) return;
 
+    const orderId = await getUserOrderId(user.id);
+    const hasTheUserAOpenOrder = !!orderId;
+    console.log(hasTheUserAOpenOrder);
+    
+    if (!hasTheUserAOpenOrder) {
+      var cartDB = await crearOrder(
+        {
+          amount: 0,
+          userId: user.id,
+          status: "Abierto",
+          carritoOrden: cart.order_detail,
+        },
+        token
+      );
+      
+      dispatch(setCart(cartDB));
+    } else {
+      const cartDB = await syncCart({
+        token,
+        cart: cart,
+        orderId: orderId,
+      });
+      dispatch(setCart(cartDB));
+    }
+  }
 
-  // const carritoOrden = carritoDB?.order_detail?.map((p) => {
-  //   return {
-  //     productId: p.productId,
-  //     price: p.price,
-  //     quantity: p.quantity,
-  //   };
-  // });
-
-  // const ordenPorEnviar = {
-  //   amount: carritoDB?.amount,
-  //   userId: user?.id,
-  //   status: "Abierto",
-  //   carritoOrden: carritoOrden,
-  // };
-
-  
   useEffect(() => {
+    if (user) {
+      inicializarCarrito();
+    }
+  }, [user]);
 
-    // if (user) {
-
-    //   dispatch(getDetailOrder(user?.id)); // devuelve orden abierta de usuario. 
-    //   //si hay orden. 
-    //   if (carritoDB?.id !== undefined) {
-    //     eliminarProductos(carritoDB?.id);
-    //     actualizarOrder(carritoDB?.id, ordenPorEnviar)
-    //   } 
-
-
-    // }
+  //inicializarCarrito()
+  useEffect(() => {
     dispatch(getCategorias());
     dispatch(
       getArticulos({
@@ -89,8 +106,6 @@ export default function Home() {
     state.order,
     state.direction,
     state.categoryId,
-
-
   ]);
 
   return (
@@ -112,7 +127,7 @@ export default function Home() {
           <OrderBrand onDirection={(direction) => setState({ ...state, page: 1, order: "brand", direction: direction })} />
         </Ordenamientos> */}
         <CardsProducts>
-          {allProducts.map((art) => (
+          {allProducts?.map((art) => (
             <CardProduct key={art.id} articulo={art} />
           ))}
         </CardsProducts>

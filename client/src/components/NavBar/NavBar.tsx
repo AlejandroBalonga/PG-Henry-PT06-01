@@ -4,11 +4,11 @@ import { FiShoppingCart } from "react-icons/fi";
 import { Link, useLocation } from "react-router-dom";
 import Logo from "../../img/Logo.png";
 import LogoMobile from "../../img/Logo-mobile.png";
-import { clearState, getUserID } from "../../actions/index";
+import { clearState, getUserID, setNumNavBar, clearStateCart } from '../../actions/index';
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { ReduxState } from "../../reducer";
-import { useEffect , useState } from "react";
+import { useEffect, useState } from "react";
 import { BsPerson, BsPersonX } from "react-icons/bs";
 import { RiHome2Line } from "react-icons/ri";
 import SearchBar from "../SearchBar/SearchBar";
@@ -18,39 +18,27 @@ export default function NavBar() {
 
   function handleLogout() {
     dispatch(clearState());
+    dispatch(clearStateCart())
   }
 
   const location = useLocation();
-
   const user = useSelector((state: ReduxState) => state.user);
   const user2 = useSelector((state: ReduxState) => state.detailsUser);
-  let carritoDB = useSelector((state: ReduxState) => state.detailOrder);
-  let productosCarrito = JSON.parse(localStorage.getItem("carrito"));
+  let cart = useSelector((state: ReduxState) => state.cart);
 
-  let totalItemsCarrito;
-
+  
 
 
-  // if (user?.id) {
-  //   dispatch(getUserID(user?.id));
-  // }
-
-  if (user) {
-    if (!carritoDB?.order_detail) {
-      totalItemsCarrito = productosCarrito;
-    } else {
-      if (!productosCarrito) {
-        totalItemsCarrito = carritoDB?.order_detail;
-      } else {
-        totalItemsCarrito = productosCarrito?.concat(carritoDB?.order_detail);
-      }
+  useEffect(() => {
+    if (user) {
+      dispatch(getUserID(user?.id));
     }
 
-  } else {
-    totalItemsCarrito = productosCarrito;
-   
-  }
+  }, [dispatch]);
 
+
+  
+ 
 
   return (
     <NavBarContainer>
@@ -110,7 +98,9 @@ export default function NavBar() {
         <Link to="/ShoppingCart">
           <DivButtonsNavBar>
             <Shop />
-            <Numerito> {totalItemsCarrito?.length} </Numerito>
+
+            <Numerito> {cart?.order_detail.length || 0} </Numerito>
+
             <FiShoppingCart />
           </DivButtonsNavBar>
         </Link>

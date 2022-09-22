@@ -73,10 +73,11 @@ export default function Buy() {
         categoryId: carritoDB.order_detail[i].product.categoryId,
         category: carritoDB.order_detail[i].product.brand, // esto esta mal
         totalCount: carritoDB.order_detail[i].quantity,
-        precioTotal: carritoDB.amount,
+        precioTotal: carritoDB.order_detail[i].quantity *  carritoDB.order_detail[i].product.price,
       });
     }
-  }
+    }
+  
 console.log("quierosaberquetienes",carrito);
 
   let preciofinal = 0;
@@ -94,23 +95,23 @@ console.log("quierosaberquetienes",carrito);
   const [datos, setDatos] = useState("");
  
 //DESCOMENTAR PARA MERCADO PAGO BOTON
-  // useEffect(() => {
-  //   axios
-  //     .post("http://localhost:3001/mercadopago", {
-  //       carrito: JSON.stringify(items_ml),
-  //       order: orderNro,
-  //     })
+  useEffect(() => {
+    axios
+      .post("http://localhost:3001/mercadopago", {
+        carrito: JSON.stringify(items_ml),
+        order: orderNro,
+      })
 
-  //     .then((data) => {
-  //       setDatos(data.data.id);
-  //       console.info("Contenido de data:", data);
-  //     })
-  //     .catch((err) => console.error(err));
-  // }, []);
+      .then((data) => {
+        setDatos(data.data.id);
+        console.info("Contenido de data:", data);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
-  // function handlerSubmit() {
-  //     window.location.assign("https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=1191162786-887db42c-eb06-405d-b0f6-bb12389b2dbd")
-  // }
+  function handlerSubmit() {
+      window.location.assign("https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=1191162786-887db42c-eb06-405d-b0f6-bb12389b2dbd")
+  }
 
   return (
     <>

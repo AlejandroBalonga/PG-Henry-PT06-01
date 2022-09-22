@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { detailsProduct, Articulo, ArticuloCarrito } from "../../../actions/index";
+import {
+  detailsProduct,
+  ArticuloCarrito,
+  addProductToCart,
+  setProductQuantityfromCart,
+} from "../../../actions/index";
 import { ReduxState } from "../../../reducer";
 import StartRating from "../../StarRating/StarRating";
 import NavBar from "../../NavBar/NavBar";
@@ -30,93 +35,115 @@ import {
   Parrafo,
   Img,
 
-
   /*  ProductoVenta,
   InfoVendedor
  */
 } from "./styles";
+import { crearOrder, getUserOrderId } from "../../Carrito/Services";
+import addProductToCartInAPI from "../../../services/api/addProductToCart";
+import Swal from "sweetalert2";
 
 export default function Details() {
   const { id } = useParams();
   let detail = useSelector((state: ReduxState) => state.detailsProduct);
+  const user = useSelector((state: ReduxState) => state.user);
+  const token = useSelector((state: ReduxState) => state.token);
+  const cart = useSelector((state: ReduxState) => state.cart);
+  const numNav = useSelector((state: ReduxState) => state.numNavBar); // para actualizar el numero de navBar
+
   const dispatch = useDispatch<any>();
   const history = useNavigate();
 
-
-   const detalle : ArticuloCarrito =   {
+  const detalle: ArticuloCarrito = {
     id: detail?.id,
-    name:detail?.name ,
-    brand:detail?.brand ,
-    stock:detail?.stock ,
-    price:detail?.price ,
-    img:detail?.img ,
-    state:detail?.state ,
-    categoryId:detail?.categoryId ,
-    category:detail?.category ,
+    name: detail?.name,
+    brand: detail?.brand,
+    stock: detail?.stock,
+    price: detail?.price,
+    img: detail?.img,
+    state: detail?.state,
+    categoryId: detail?.categoryId,
+    category: detail?.category,
     totalCount: 1,
     precioTotal: detail?.price,
-   }
+  };
 
-
-
-
-
-  let carrito = JSON.parse(localStorage.getItem('carrito'));
-  if (!carrito) {
-    carrito = [];
-  }
-
-
-
-  const [articulo, setArticulo] = useState([carrito])
-  // const [articulo, setArticulo] = useState([{
-  //   id: carrito.id,
-  //   name: carrito.name,
-  //   brand: carrito.brand,
-  //   stock: carrito.stock,
-  //   price: carrito.price,
-  //   img: carrito.img,
-  //   state: carrito.state,
-  //   categoryId: carrito.categoryId,
-  //   category: carrito.category,
-  //   totalCount: 1}
-  // ])
+  const [articulo, setArticulo] = useState([cart]);
 
   useEffect(() => {
     dispatch(detailsProduct(id));
-
   }, [dispatch, articulo]);
 
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 1200,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", Swal.stopTimer);
+      toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+  });
 
-
-  function handlerAgregarCarrito(detalle, accion: string) {
-
-    setArticulo(detalle)
-    // if (carrito) {
-    const index = carrito.findIndex((art) => art.id === detalle.id)
-    if (index === -1) {
-      //agrego
-      localStorage.setItem('item', JSON.stringify(detalle))
-      carrito.push(JSON.parse(localStorage.getItem('item')))
-      localStorage.setItem('carrito', JSON.stringify(carrito))
-      localStorage.setItem('item', JSON.stringify(""))
-
-      accion === "comprar"?  history('/ShoppingCart') : history('/home')
-
+  async function handlerAgregarCarrito(e, detalle, accion: string) {
+    e.preventDefault();
+    const checkOrderUser = await getUserOrderId(user?.id);
+    if (user) {
+      // TRABAJO EN BD
+      //CUANDO SE LOGEA VERIFICA SI HAY ORDEN O NO Y LA CREA
+      // SINCRONIZA EN CASO DE QUE HAYUA CARRITO Y SIGUE ACA
+      if (checkOrderUser === "sin ordenes abiertas") {
+        var order = await crearOrder(
+          {
+            amount: 0,
+            userId: user?.id,
+            status: "Abierto",
+            carritoOrden: [],
+          },
+          token
+        );
+        await addProductToCartInAPI({
+          token,
+          productId: detalle.id,
+          quantity: 1,
+          orderId: order.data.id,
+          price: detalle.price,
+        });
+      } else {
+        await addProductToCartInAPI({
+          token,
+          productId: detalle.id,
+          quantity: 1,
+          orderId: checkOrderUser,
+          price: detalle.price,
+        });
+      }
     }
-    else{
-      //no agrego sumo. 
-      //detalle.totalCount = detalle.totalCount + 1;
-      let carritoAux = JSON.parse(localStorage.getItem('carrito'));
-      carritoAux[index].totalCount = carritoAux[index].totalCount + 1;
-      carritoAux[index].precioTotal = carritoAux[index].price * carritoAux[index].totalCount;
-      localStorage.setItem('carrito', JSON.stringify(carritoAux))
-      //console.log(carrito)
-      accion === "comprar"?  history('/ShoppingCart') : history('/home')
-      
-    }
-    //console.log(articulo)
 
+    // NO HAY USUARIO USO EL LS
+    const cartOrderDetail = cart?.order_detail?.find(
+      (orderDetail) => orderDetail.productId === detalle.id
+    );
+    if (!cartOrderDetail) {
+      //CHEQUEA SI EL PROD ESTA EN CART, sino esta....
+      dispatch(addProductToCart(detalle));
+    } else {
+      dispatch(
+        setProductQuantityfromCart(detalle, cartOrderDetail.quantity + 1)
+      );
+    }
+
+    //REVISO CUAL FUE EL BOTON QUE APRETO Y REDIRIJO
+    if (accion === "comprar") {
+      history("/ShoppingCart");
+    } else {
+      history("/home");
+      Toast.fire({
+        icon: "success",
+        title: "Se agregó el producto al carrito",
+      });
+    }
   }
 
   return (
@@ -173,12 +200,22 @@ export default function Details() {
               {/* <Link to="/buy">
                 {" "} */}
               <ButtonComprar>
-                <Button className="comprar" onClick={()=>handlerAgregarCarrito(detalle, "comprar")}>Comprar ahora</Button>
+                <Button
+                  className="comprar"
+                  onClick={(e) => handlerAgregarCarrito(e, detalle, "comprar")}
+                >
+                  Comprar ahora
+                </Button>
               </ButtonComprar>
               {/* </Link> */}
 
               <ButtonCarrito>
-                <Button className="carrito" onClick={()=>handlerAgregarCarrito(detalle, "agregar")}>Agregar al Carrito</Button>
+                <Button
+                  className="carrito"
+                  onClick={(e) => handlerAgregarCarrito(e, detalle, "agregar")}
+                >
+                  Agregar al Carrito
+                </Button>
               </ButtonCarrito>
             </Producto>
             <Garantia />
@@ -195,27 +232,25 @@ export default function Details() {
 
 const Info = () => {
   return (
-
     <Description>
       <Img id="logo" src={logo} alt="" />
       <Parrafo>
-        La evolución no para. Por eso CompuStore es experto en tecnología de
-        la más avanzada. En www.compustore.com te ofrecemos un sitio web
-        renovado para que encuentres la mayor variedad de electrodomésticos,
-        tecno y entretenimiento en tu hogar. Nuestro equipo de expertos está
-        preparado para asesorarte y brindarte todos los días una experiencia
-        de compra personalizada que se adapte a lo que buscás. También
-        contamos con un servicio técnico especializado, con asistencia total
-        en posventa para que disfrutes todos los días de tu producto como si
-        fuera el primero. Además, ofrecemos ofertas especiales, descuentos y
-        planes de financiación para que accedas a eso que tanto querés al
-        precio más accesible y con la mejor cuota. Televisores, Smart TV,
-        Celulares libres, Notebooks, Tablets, Aires Acondicionados, Heladeras,
-        Lavarropas y muchos productos en oferta. Disfrutá de la evolución que
-        sólo te puede brindar CompuStore. ¡Bienvenido a la Superevolución!
+        La evolución no para. Por eso CompuStore es experto en tecnología de la
+        más avanzada. En www.compustore.com te ofrecemos un sitio web renovado
+        para que encuentres la mayor variedad de electrodomésticos, tecno y
+        entretenimiento en tu hogar. Nuestro equipo de expertos está preparado
+        para asesorarte y brindarte todos los días una experiencia de compra
+        personalizada que se adapte a lo que buscás. También contamos con un
+        servicio técnico especializado, con asistencia total en posventa para
+        que disfrutes todos los días de tu producto como si fuera el primero.
+        Además, ofrecemos ofertas especiales, descuentos y planes de
+        financiación para que accedas a eso que tanto querés al precio más
+        accesible y con la mejor cuota. Televisores, Smart TV, Celulares libres,
+        Notebooks, Tablets, Aires Acondicionados, Heladeras, Lavarropas y muchos
+        productos en oferta. Disfrutá de la evolución que sólo te puede brindar
+        CompuStore. ¡Bienvenido a la Superevolución!
       </Parrafo>
     </Description>
-
   );
 };
 

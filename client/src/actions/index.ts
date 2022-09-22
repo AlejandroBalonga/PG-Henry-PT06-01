@@ -27,6 +27,8 @@ import {
   ADD_PRODUCT_TO_CART,
   REMOVE_PRODUCT_FROM_CART,
   SET_PRODUCT_QUANTITY_FROM_CART,
+  CLEAR_STATE_CART,
+  ALTER_NUM_NAV
 } from "./actiontype";
 
 const { REACT_APP_API_URL = "http://localhost:3001" } = process.env;
@@ -146,7 +148,7 @@ export interface paramsUser {
   name: string;
   order: string;
   direction: string;
-  filter: string
+  filter: string;
   userId: number;
 }
 
@@ -203,15 +205,14 @@ export interface DetailOrder {
 }
 
 export interface Cart {
-  id?: number,
-  amount: number,
-  order_detail:
-  {
-    productId: number,
-    price: number,
-    quantity: number,
-    product: Articulo
-  }[]
+  id?: number;
+  amount: number;
+  order_detail: {
+    productId: number;
+    price: number;
+    quantity: number;
+    product: Articulo;
+  }[];
 }
 
 export function getOrders({
@@ -249,13 +250,13 @@ export function getOrders({
 }
 
 export function getDetailOrder(id: Number) {
-  console.log("id action--------------", id);
+  //console.log("id action--------------", id);
   return async function (dispatch: Dispatch) {
     try {
       var json = await axios.get<DetailOrder>(
         REACT_APP_API_URL + `/backoffice/order/checkorder/${id}`
       );
-      console.log("json action---------------------", json);
+      //console.log("json action---------------------", json);
       return dispatch({ type: GET_DETAIL_ORDERS, payload: json.data });
     } catch (error) {
       return dispatch({ type: SET_ERROR, payload: "error" });
@@ -458,19 +459,19 @@ export function createUser(payload) {
   return function (dispatch) {
     return axios
       .post(REACT_APP_API_URL + "/auth/signup", payload)
-      .then((response) => /* response */
+      .then((response /* response */) =>
         dispatch({
           type: REGISTRO_EXITOSO,
-          payload: response.data.msg
+          payload: response.data.msg,
         })
       )
       .catch((error) => {
         /* const alerta ={
          msg:error.response.data.msg
        }   */
-        const alerta = error.response.data.msg
+        const alerta = error.response.data.msg;
         dispatch({ type: SET_ERROR, payload: alerta });
-        console.log(alerta)
+        console.log(alerta);
       });
   };
 }
@@ -505,6 +506,7 @@ export function clearState() {
     });
   };
 }
+
 ////////////back office jvqh//////////////////////////////////////////////////////////////////////
 export function postProductBO(token, payload) {
   return function (dispatch) {
@@ -540,7 +542,7 @@ export function getUsersBO({
   order,
   direction,
   filter,
-  userId
+  userId,
 }: paramsUser) {
   return async function (dispatch: Dispatch) {
     try {
@@ -554,7 +556,7 @@ export function getUsersBO({
             order: order,
             direction: direction,
             filter: filter,
-            id: userId
+            id: userId,
           },
         }
       );
@@ -574,9 +576,12 @@ export function getUsersBO({
 export function postUserBO(token, payload) {
   return function (dispatch) {
     return axios
-      .post(REACT_APP_API_URL + "/backoffice/user", payload/* , {
+      .post(
+        REACT_APP_API_URL + "/backoffice/user",
+        payload /* , {
         headers: { authorization: `Bearer ${token}` },
-      } */)
+      } */
+      )
       .then((response) => {
         //response
         console.log(response);
@@ -636,7 +641,7 @@ export function getOrdersBO({
   order,
   direction,
   userId,
-  filter
+  filter,
 }: paramsOrders) {
   return async function (dispatch: Dispatch) {
     try {
@@ -671,21 +676,24 @@ export function getArticulosBO({
   order,
   direction,
   categoryId,
-  filter
+  filter,
 }: paramsArtBO) {
   return async function (dispatch: Dispatch) {
     try {
-      var json = await axios.get<Articulo[]>(REACT_APP_API_URL + "/backoffice/product", {
-        params: {
-          page: page,
-          pageSize: pageSize,
-          name: name,
-          order: order,
-          direction: direction,
-          categoryId: categoryId,
-          filter: filter
-        },
-      });
+      var json = await axios.get<Articulo[]>(
+        REACT_APP_API_URL + "/backoffice/product",
+        {
+          params: {
+            page: page,
+            pageSize: pageSize,
+            name: name,
+            order: order,
+            direction: direction,
+            categoryId: categoryId,
+            filter: filter,
+          },
+        }
+      );
       // console.log(json.data[1]);
 
       return [
@@ -737,17 +745,36 @@ export function getCategoriasBO({
 //////////////////////back office/////////////////////////////////////////////////////////////////
 
 export function addProductToCart(product: Articulo) {
-  return { type: ADD_PRODUCT_TO_CART, payload: product }
+  return { type: ADD_PRODUCT_TO_CART, payload: product };
 }
 
 export function removeProductfromCart(product: Articulo) {
-  return { type: REMOVE_PRODUCT_FROM_CART, payload: product }
+  return { type: REMOVE_PRODUCT_FROM_CART, payload: product };
 }
 
-export function setProductQuantityfromCart(product: Articulo, quantity: number) {
-  return { type: SET_PRODUCT_QUANTITY_FROM_CART, payload: { product, quantity } }
+export function setProductQuantityfromCart(
+  product: Articulo,
+  quantity: number
+) {
+  return {
+    type: SET_PRODUCT_QUANTITY_FROM_CART,
+    payload: { product, quantity },
+  };
 }
 
 export function setCart(cart: Cart) {
-  return { type: SET_CART, payload: cart }
+  return { type: SET_CART, payload: cart };
 }
+
+export function clearStateCart() {
+  return function (dispatch) {
+    dispatch({
+      type: CLEAR_STATE_CART,
+    });
+  };
+}
+
+export function setNumNavBar(num) {
+ return { type: ALTER_NUM_NAV, payload: num };
+}
+

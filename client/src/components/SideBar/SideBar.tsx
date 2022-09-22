@@ -92,7 +92,7 @@ export default function SideBar({ homeState, filterOreder }: SideBarProps) {
       </OrderContainer>
       <fieldset style={{ margin: 5 }}>
         <legend>Categorias:</legend>
-        {allCategorias.map((cat, i) => (
+        {allCategorias?.map((cat, i) => (
           <Category key={i}>
             <input
               id={`${i}`}
